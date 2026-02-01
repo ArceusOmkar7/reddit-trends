@@ -1,4 +1,5 @@
 import asyncio
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
@@ -8,17 +9,18 @@ from app.db.database import init_db
 from app.services.ingestion import poll_reddit
 from app.services.scheduler import run_interval
 
-app = FastAPI(title=settings.app_name, version=settings.app_version)
-app.include_router(api_router)
-
-
-@app.on_event("startup")
-async def start_ingestion() -> None:
+@asynccontextmanager
+async def lifespan(_: FastAPI):
 	init_db()
-	if not settings.enable_ingestion:
-		return
+	if settings.enable_ingestion:
+		async def task() -> None:
+			await poll_reddit()
 
-	async def task() -> None:
-		await poll_reddit()
+		asyncio.create_task(run_interval(task, settings.poll_interval_seconds))
+		yield
+	else:
+		yield
 
-	asyncio.create_task(run_interval(task, settings.poll_interval_seconds))
+
+app = FastAPI(title=settings.app_name, version=settings.app_version, lifespan=lifespan)
+app.include_router(api_router)
