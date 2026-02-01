@@ -8,6 +8,10 @@ from app.clients.reddit import RedditClient
 from app.core.config import settings
 from app.models.schemas import PostIn
 from app.repositories.posts import store_posts
+from app.repositories.sentiment import store_sentiment
+from app.repositories.trends import store_trends
+from app.services.sentiment import aggregate_sentiment
+from app.services.trends import detect_trends
 
 
 def parse_scope(value: str) -> list[str]:
@@ -42,6 +46,14 @@ async def poll_reddit() -> list[PostIn]:
     inserted = 0
     if posts:
         inserted = store_posts(posts)
+
+        sentiment_records = aggregate_sentiment(posts)
+        if sentiment_records:
+            store_sentiment(sentiment_records)
+
+        trend_records = detect_trends(posts)
+        if trend_records:
+            store_trends(trend_records)
 
     logger.info(
         "Ingestion cycle complete",

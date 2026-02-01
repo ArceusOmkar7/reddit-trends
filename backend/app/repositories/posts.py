@@ -4,14 +4,7 @@ from typing import Iterable
 
 from app.db.database import get_connection
 from app.models.schemas import PostIn
-
-
-def get_or_create_subreddit_id(connection, name: str) -> int:
-    cursor = connection.cursor()
-    cursor.execute("INSERT OR IGNORE INTO subreddits (name) VALUES (?);", (name,))
-    cursor.execute("SELECT id FROM subreddits WHERE name = ?;", (name,))
-    row = cursor.fetchone()
-    return int(row["id"]) if row else 0
+from app.repositories.subreddits import get_or_create_subreddit_id
 
 
 def store_posts(posts: Iterable[PostIn]) -> int:
@@ -23,7 +16,7 @@ def store_posts(posts: Iterable[PostIn]) -> int:
         if not post.id:
             continue
         subreddit = post.subreddit or ""
-        subreddit_id = get_or_create_subreddit_id(connection, subreddit) if subreddit else None
+        subreddit_id = get_or_create_subreddit_id(subreddit) if subreddit else None
         enriched.append(
             (
                 post.id,

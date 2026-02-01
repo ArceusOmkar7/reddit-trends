@@ -20,8 +20,8 @@
 - [x] Implement ingestion scheduler (5-min default)
 - [x] Define database models: posts, comments, sentiment, trends
 - [x] Build persistence layer (single DB)
-- [ ] Create NLP pipeline: lightweight sentiment scoring
-- [ ] Implement trend analysis: keyword frequency + spike detection
+- [x] Create NLP pipeline: lightweight sentiment scoring
+- [x] Implement trend analysis: keyword frequency + spike detection
 - [ ] Create REST endpoints for raw data
 - [ ] Create REST endpoints for aggregated analytics
 - [x] Add health/status endpoint

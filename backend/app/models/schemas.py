@@ -17,3 +17,25 @@ class PostIn(BaseModel):
 
 class HealthResponse(BaseModel):
     status: str = Field(example="ok")
+
+
+class SentimentRecord(BaseModel):
+    id: str
+    timestamp: str
+    context: str
+    label: str
+    sentiment: float
+    subreddit_id: Optional[int] = None
+    event_id: Optional[int] = None
+
+
+class TrendSnapshotRecord(BaseModel):
+    id: str
+    timestamp: str
+    keyword: str
+    velocity: float
+    spike: float
+    context: str
+    keyword_id: Optional[int] = None
+    subreddit_id: Optional[int] = None
+    event_id: Optional[int] = None
