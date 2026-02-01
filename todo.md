@@ -3,15 +3,15 @@
 ## 1. Foundations
 - [ ] Confirm scope vs PRD goals (Phase 1 only)
 - [x] Review tech constraints and lock stack
-- [ ] Define data scope: subreddits, events, keywords, polling interval
+- [x] Define data scope: subreddits, events, keywords, polling interval
 - [x] Draft API response schemas (raw vs aggregated)
-- [ ] Set data retention policy for raw vs aggregated metrics
+- [x] Set data retention policy for raw vs aggregated metrics
 
 ## 2. Repository & Structure
 - [x] Create repo structure: backend/, frontend/, docs/, infra/
 - [x] Add base README with setup and run steps
 - [x] Add .env.example for backend and frontend
-- [ ] Add Docker and docker-compose skeleton
+- [x] Add Docker and docker-compose skeleton
 
 ## 3. Backend (FastAPI)
 - [ ] Scaffold FastAPI app structure
