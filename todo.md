@@ -25,7 +25,7 @@
 - [x] Create REST endpoints for raw data
 - [x] Create REST endpoints for aggregated analytics
 - [x] Add health/status endpoint
-- [ ] Add tests for ingestion and analytics modules
+- [x] Add tests for ingestion and analytics modules
 
 ## 4. Frontend (React + Vite + Tailwind)
 - [x] Scaffold Next.js App Router app

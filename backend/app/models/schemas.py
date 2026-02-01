@@ -16,7 +16,7 @@ class PostIn(BaseModel):
 
 
 class HealthResponse(BaseModel):
-    status: str = Field(example="ok")
+    status: str = Field(json_schema_extra={"example": "ok"})
 
 
 class SentimentRecord(BaseModel):
