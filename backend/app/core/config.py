@@ -17,5 +17,6 @@ class Settings(BaseSettings):
     enable_ingestion: bool = False
     subreddits: str = "worldnews,india,technology,artificial,business,politics,science,movies,news"
     keywords: str = "elections,ai releases,geopolitical conflicts,inflation,layoffs,climate,entertainment,launch-week"
+    cors_origins: str = "http://localhost:3000"
 
 settings = Settings()
