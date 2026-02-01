@@ -30,7 +30,7 @@ export default function SubredditPage() {
       <Breadcrumbs
         items={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Subreddits", href: "/dashboard" },
+          { label: "Subreddits", href: `/subreddits/${subreddit}` },
           { label: `r/${subreddit}` }
         ]}
       />
@@ -57,14 +57,18 @@ export default function SubredditPage() {
             }
           }}
         >
-          {(dashboard?.activeSubreddits ?? ["r/technology", "r/science"]).map((item) => {
-            const name = item.replace(/^r\//, "");
-            return (
+          {(() => {
+            const list = dashboard?.activeSubreddits ?? ["r/technology", "r/science"];
+            const names = list.map((item) => item.replace(/^r\//, ""));
+            const options = names.includes(subreddit)
+              ? names
+              : [subreddit || "technology", ...names];
+            return options.map((name) => (
               <option key={name} value={name}>
                 r/{name}
               </option>
-            );
-          })}
+            ));
+          })()}
         </select>
       </div>
 

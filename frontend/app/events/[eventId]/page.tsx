@@ -31,7 +31,7 @@ export default function EventPage() {
       <Breadcrumbs
         items={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Events", href: "/dashboard" },
+          { label: "Events", href: `/events/${eventId}` },
           { label: eventId }
         ]}
       />
@@ -58,11 +58,17 @@ export default function EventPage() {
             }
           }}
         >
-          {(dashboard?.activeEvents ?? ["elections", "ai releases"]).map((item) => (
-            <option key={item} value={item}>
-              {item}
-            </option>
-          ))}
+          {(() => {
+            const list = dashboard?.activeEvents ?? ["elections", "ai releases"];
+            const options = list.includes(eventId)
+              ? list
+              : [eventId || list[0], ...list];
+            return options.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ));
+          })()}
         </select>
       </div>
 
