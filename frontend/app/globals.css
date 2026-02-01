@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: var(--font-inter), sans-serif;
+}
+
+body {
+  color: #1a1a2e;
+  background: #f8f9fa;
+}
+
+.card-surface {
+  @apply rounded-2xl border border-border-default bg-surface-white shadow-card;
+}
+
+.pill {
+  @apply rounded-full px-3 py-1 text-xs font-semibold;
+}
+
+.metric-label {
+  @apply text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted;
+}
+
+.section-title {
+  @apply text-2xl font-semibold text-ink-primary;
+}

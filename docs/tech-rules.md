@@ -1,4 +1,3 @@
-
 ---
 
 # Tech Stack Rules Document
@@ -28,35 +27,41 @@ The goal is to ensure consistency, simplicity, and feasibility for a single-deve
 
 ### 3.1 Framework
 
-* **React** is mandatory for frontend development
+* **Next.js** is mandatory for frontend development
+* App Router must be used
 * Functional components only
 * Hooks-based state management
 
-### 3.2 Styling
+### 3.2 Rendering Strategy
+
+* Client-side rendering for all analytics dashboards
+* Server-side rendering allowed only for static informational pages (e.g., About page)
+* No server actions used for business logic
+
+### 3.3 Styling
 
 * **Tailwind CSS** must be used for all styling
 * No inline styles
 * No external UI frameworks like Material UI or Ant Design
 * Common styles extracted into reusable utility components
 
-### 3.3 Routing
+### 3.4 Routing
 
-* **React Router** required for navigation
+* **Next.js file-based routing** must be used
 * URL-based routing for every page
-* Context like subreddit or event passed via route params or query params
+* Context such as subreddit or event passed via route params or search params
 * No hash-based routing
 
-### 3.4 Data Visualization
+### 3.5 Data Visualization
 
 * Use **Recharts** or **Chart.js**
 * Charts must be reusable components
 * No hardcoded data inside chart components
 * All chart data must come from API or mock services
 
-### 3.5 State and Data Handling
+### 3.6 State and Data Handling
 
 * Custom React hooks for:
-
   * Data fetching
   * Loading and error states
   * Periodic refresh
@@ -90,7 +95,6 @@ The goal is to ensure consistency, simplicity, and feasibility for a single-deve
 ### 4.4 API Design
 
 * Clear separation between:
-
   * Raw data endpoints
   * Aggregated analytics endpoints
 * Consistent response schemas
@@ -104,7 +108,6 @@ The goal is to ensure consistency, simplicity, and feasibility for a single-deve
 
 * Single database instance
 * Structured storage for:
-
   * Posts
   * Comments
   * Sentiment scores
@@ -182,7 +185,6 @@ The goal is to ensure consistency, simplicity, and feasibility for a single-deve
 ## 10. Future Stack Extension Rules
 
 * Any new technology must:
-
   * Serve a clear intelligence goal
   * Be justified in terms of complexity vs benefit
   * Not break single-node architecture

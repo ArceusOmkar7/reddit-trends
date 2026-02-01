@@ -28,27 +28,27 @@
 - [ ] Add tests for ingestion and analytics modules
 
 ## 4. Frontend (React + Vite + Tailwind)
-- [ ] Scaffold Vite React app
-- [ ] Install and configure Tailwind CSS
-- [ ] Add React Router routes:
-  - [ ] /dashboard
-  - [ ] /trends
-  - [ ] /sentiment
-  - [ ] /subreddits/:name
-  - [ ] /events/:eventId
-  - [ ] /about
-- [ ] Build shared layout: sidebar + top bar + content shell
-- [ ] Implement reusable cards, badges, and metric tiles
-- [ ] Implement breadcrumbs for hierarchical pages
-- [ ] Create mock API service with realistic schemas
-- [ ] Create custom hooks: fetching, loading, error, polling
-- [ ] Build charts using Recharts or Chart.js (no hardcoded data)
-- [ ] Implement dashboard page (sentiment + volume + trending)
-- [ ] Implement trends page (frequency + spikes)
-- [ ] Implement sentiment page (distribution + timeline)
-- [ ] Implement subreddit view page (per-subreddit metrics)
-- [ ] Implement event monitoring page (keyword tracking)
-- [ ] Implement system info/about page
+- [x] Scaffold Next.js App Router app
+- [x] Install and configure Tailwind CSS
+- [x] Add Next.js routes:
+  - [x] /dashboard
+  - [x] /trends
+  - [x] /sentiment
+  - [x] /subreddits/:name
+  - [x] /events/:eventId
+  - [x] /about
+- [x] Build shared layout: sidebar + top bar + content shell
+- [x] Implement reusable cards, badges, and metric tiles
+- [x] Implement breadcrumbs for hierarchical pages
+- [x] Create mock API service with realistic schemas
+- [x] Create custom hooks: fetching, loading, error, polling
+- [x] Build charts using Recharts (no hardcoded data)
+- [x] Implement dashboard page (sentiment + volume + trending)
+- [x] Implement trends page (frequency + spikes)
+- [x] Implement sentiment page (distribution + timeline)
+- [x] Implement subreddit view page (per-subreddit metrics)
+- [x] Implement event monitoring page (keyword tracking)
+- [x] Implement system info/about page
 
 ## 5. Integration
 - [ ] Wire frontend to backend API endpoints
