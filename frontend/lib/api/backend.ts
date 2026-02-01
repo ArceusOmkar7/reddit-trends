@@ -7,6 +7,7 @@ import type {
   TrendTopic,
   SubredditData
 } from "@/lib/types";
+import { formatLocalDateTime, formatLocalTime } from "@/lib/format";
 
 type BackendTrendItem = {
   timestamp: string;
@@ -33,11 +34,22 @@ async function apiGet<T>(path: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-const formatTime = (timestamp: string) =>
-  new Date(timestamp).toISOString().slice(11, 16);
+const formatTime = (timestamp: string) => formatLocalTime(timestamp);
 
 export async function fetchDashboardData(): Promise<DashboardData> {
-  return apiGet<DashboardData>("/analytics/dashboard?hours=24");
+  const data = await apiGet<DashboardData>("/analytics/dashboard?hours=24");
+  return {
+    ...data,
+    lastUpdated: formatLocalDateTime(data.lastUpdated),
+    sentimentTrend: data.sentimentTrend.map((point) => ({
+      ...point,
+      time: formatLocalTime(point.time)
+    })),
+    volumeTrend: data.volumeTrend.map((point) => ({
+      ...point,
+      time: formatLocalTime(point.time)
+    }))
+  };
 }
 
 export async function fetchTrendData(): Promise<TrendData> {
@@ -66,7 +78,9 @@ export async function fetchTrendData(): Promise<TrendData> {
     }));
 
   return {
-    lastUpdated: data[0]?.timestamp ?? "Just now",
+    lastUpdated: data[0]?.timestamp
+      ? formatLocalDateTime(data[0].timestamp)
+      : "Just now",
     keywordSeries,
     trendCards
   };
@@ -109,7 +123,9 @@ export async function fetchSentimentData(): Promise<SentimentData> {
   const sum = totals.positive + totals.neutral + totals.negative || 1;
 
   return {
-    lastUpdated: latestTimestamp ?? "Just now",
+    lastUpdated: latestTimestamp
+      ? formatLocalDateTime(latestTimestamp)
+      : "Just now",
     distribution: [
       { label: "Positive", value: Math.round((totals.positive / sum) * 100) },
       { label: "Neutral", value: Math.round((totals.neutral / sum) * 100) },
@@ -123,12 +139,30 @@ export async function fetchSubredditData(subreddit: string): Promise<SubredditDa
   const data = await apiGet<SubredditData>(
     `/analytics/subreddits/${encodeURIComponent(subreddit)}?hours=24`
   );
-  return data;
+  return {
+    ...data,
+    lastUpdated: formatLocalDateTime(data.lastUpdated),
+    sentimentTrend: data.sentimentTrend.map((point) => ({
+      ...point,
+      time: formatLocalTime(point.time)
+    }))
+  };
 }
 
 export async function fetchEventData(eventId: string): Promise<EventData> {
   const data = await apiGet<EventData>(
     `/analytics/events/${encodeURIComponent(eventId)}?hours=24`
   );
-  return data;
+  return {
+    ...data,
+    lastUpdated: formatLocalDateTime(data.lastUpdated),
+    volumeTrend: data.volumeTrend.map((point) => ({
+      ...point,
+      time: formatLocalTime(point.time)
+    })),
+    sentimentTrend: data.sentimentTrend.map((point) => ({
+      ...point,
+      time: formatLocalTime(point.time)
+    }))
+  };
 }
