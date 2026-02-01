@@ -22,6 +22,10 @@ Copy and edit frontend/.env.example:
 - npm run build
 - npm run start
 
+## Production
+- Set NEXT_PUBLIC_API_BASE_URL to your backend URL.
+- Serve with npm run start or a process manager (Docker or similar).
+
 ## Tests
 - npm run test
 - npm run test:watch

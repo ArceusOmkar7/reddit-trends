@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import {
   Activity,
   BarChart4,
@@ -23,6 +24,50 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const pollIntervalSeconds = Number(
+    process.env.NEXT_PUBLIC_POLL_INTERVAL_SECONDS ?? 300
+  );
+  const pollIntervalMs = Math.max(pollIntervalSeconds, 30) * 1000;
+  const [nextPollAt, setNextPollAt] = useState<number | null>(null);
+  const [now, setNow] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const start = Date.now();
+    setNow(start);
+    setNextPollAt(start + pollIntervalMs);
+    setMounted(true);
+    const tick = () => setNow(Date.now());
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (now !== null && nextPollAt !== null && now >= nextPollAt) {
+      setNextPollAt(Date.now() + pollIntervalMs);
+    }
+  }, [now, nextPollAt, pollIntervalMs]);
+
+  const countdown = useMemo(() => {
+    if (now === null || nextPollAt === null) {
+      return "--:--";
+    }
+    const remainingMs = Math.max(nextPollAt - now, 0);
+    const remainingSeconds = Math.ceil(remainingMs / 1000);
+    const minutes = Math.floor(remainingSeconds / 60)
+      .toString()
+      .padStart(2, "0");
+    const seconds = (remainingSeconds % 60).toString().padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  }, [nextPollAt, now]);
+
+  const nextPollLabel =
+    mounted && nextPollAt !== null
+      ? new Intl.DateTimeFormat(undefined, {
+          hour: "2-digit",
+          minute: "2-digit"
+        }).format(new Date(nextPollAt))
+      : "--:--";
 
   return (
     <aside className="sticky top-0 hidden h-screen w-64 flex-col border-r border-border-default bg-white px-5 py-6 lg:flex">
@@ -62,8 +107,12 @@ export default function Sidebar() {
           Live polling
         </p>
         <p className="mt-2 text-sm text-ink-secondary">
-          Reddit API ingestion every 5 minutes.
+          Reddit API ingestion every {Math.round(pollIntervalMs / 60000)} minutes.
         </p>
+        <div className="mt-3 text-sm text-ink-secondary">
+          <span className="font-semibold text-ink-primary">Next poll</span> in {countdown}
+        </div>
+        <p className="text-xs text-ink-muted">Scheduled at {nextPollLabel}</p>
       </div>
     </aside>
   );

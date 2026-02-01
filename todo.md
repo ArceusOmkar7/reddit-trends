@@ -61,9 +61,9 @@
 ## 6. Deployment & Ops
 - [x] Finalize Dockerfiles for backend and frontend
 - [x] Add docker-compose for local dev
-- [ ] Add production build instructions
-- [ ] Configure environment variables for DigitalOcean
-- [ ] Document deployment steps
+- [x] Add production build instructions
+- [x] Configure environment variables for DigitalOcean
+- [x] Document deployment steps
 
 ## 7. QA & Review
 - [x] Run backend smoke test

@@ -95,7 +95,11 @@ export default function TopBar() {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 rounded-full border border-border-default bg-white px-4 py-2 text-sm text-ink-secondary">
             <CalendarRange size={16} />
-            <span>{lastRefreshed ?? "Awaiting refresh"}</span>
+            <span>
+              {lastRefreshed
+                ? `Last refreshed ${lastRefreshed}`
+                : "Awaiting refresh"}
+            </span>
           </div>
           <div className="relative" ref={popoverRef}>
             <button

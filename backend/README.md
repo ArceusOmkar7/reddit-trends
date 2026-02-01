@@ -27,6 +27,11 @@ Copy and edit backend/.env.example:
 ## Run
 - uvicorn app.main:app --host 0.0.0.0 --port 8000
 
+## Production
+- Ensure ENABLE_INGESTION=true and valid Reddit API keys are set.
+- For a production host, run uvicorn behind a process manager (systemd, Docker, or similar).
+- Use a persistent volume for data.db if running in containers.
+
 ## Tests
 - pytest
 

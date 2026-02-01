@@ -32,6 +32,32 @@ See [backend/README.md](backend/README.md) for setup, running, and tests.
 ### Frontend
 See [frontend/README.md](frontend/README.md) for setup, running, and tests.
 
+## Production build
+
+### Docker (recommended)
+1. Configure environment variables:
+	 - backend/.env (copy from backend/.env.example)
+	 - frontend/.env (copy from frontend/.env.example)
+2. Build and run:
+	 - docker compose up --build
+
+### Local build (no Docker)
+- Backend
+	- pip install -r backend/requirements.txt
+	- uvicorn app.main:app --host 0.0.0.0 --port 8000
+- Frontend
+	- npm install
+	- npm run build
+	- npm run start
+
+## Deployment checklist
+1. Set production environment variables (see backend/.env.example and frontend/.env.example).
+2. Ensure Reddit API keys are present (REDDIT_CLIENT_ID/SECRET/USER_AGENT).
+3. Set ENABLE_INGESTION=true for polling.
+4. Confirm NEXT_PUBLIC_API_BASE_URL points to the deployed backend.
+5. Open ports 8000 (backend) and 3000 (frontend) or use a reverse proxy.
+6. Verify /health responds and dashboard loads.
+
 ## API overview
 Base URL: http://localhost:8000
 
