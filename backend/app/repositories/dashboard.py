@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 
 from app.db.database import get_connection
+from app.core.config import settings
 
 
 def _since(hours: int) -> str:
@@ -88,7 +89,11 @@ def fetch_active_events(limit: int = 6) -> list[str]:
     )
     rows = cursor.fetchall()
     connection.close()
-    return [row["name"] for row in rows]
+    if rows:
+        return [row["name"] for row in rows]
+
+    keywords = [item.strip() for item in settings.keywords.split(",") if item.strip()]
+    return keywords[:limit]
 
 
 def fetch_volume_series(hours: int = 24) -> list[dict]:

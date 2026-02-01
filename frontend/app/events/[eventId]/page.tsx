@@ -15,7 +15,9 @@ import { useDashboardData } from "@/lib/hooks/useDashboardData";
 export default function EventPage() {
   const params = useParams<{ eventId: string }>();
   const router = useRouter();
-  const eventId = params?.eventId ?? "";
+  const eventId = params?.eventId
+    ? decodeURIComponent(params.eventId)
+    : "";
   const { data, loading, error, refetch } = useEventData(eventId);
   const { data: dashboard } = useDashboardData();
   const { setLastRefreshed } = useRefreshContext();
@@ -31,7 +33,7 @@ export default function EventPage() {
       <Breadcrumbs
         items={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Events", href: `/events/${eventId}` },
+          { label: "Events", href: `/events/${encodeURIComponent(eventId)}` },
           { label: eventId }
         ]}
       />
@@ -54,7 +56,7 @@ export default function EventPage() {
           onChange={(event) => {
             const next = event.target.value;
             if (next) {
-              router.push(`/events/${next}`);
+              router.push(`/events/${encodeURIComponent(next)}`);
             }
           }}
         >

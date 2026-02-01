@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     poll_interval_seconds: int = 300
     database_url: str = "sqlite:///./data.db"
     enable_ingestion: bool = False
-    subreddits: str = "worldnews,india,technology,artificial,business,politics,science,movies"
-    keywords: str = "elections,ai releases,geopolitical conflicts,inflation,layoffs,climate,entertainment"
+    subreddits: str = "worldnews,india,technology,artificial,business,politics,science,movies,news"
+    keywords: str = "elections,ai releases,geopolitical conflicts,inflation,layoffs,climate,entertainment,launch-week"
 
 settings = Settings()

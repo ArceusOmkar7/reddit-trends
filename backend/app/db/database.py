@@ -173,6 +173,13 @@ def init_db() -> None:
         "CREATE INDEX IF NOT EXISTS idx_post_keywords_keyword ON post_keywords(keyword_id);"
     )
 
+    keywords = [item.strip().lower() for item in settings.keywords.split(",") if item.strip()]
+    if keywords:
+        cursor.executemany(
+            "INSERT OR IGNORE INTO events (name) VALUES (?);",
+            [(keyword,) for keyword in keywords],
+        )
+
     connection.commit()
     connection.close()
     logger.info("Database initialized")

@@ -16,8 +16,8 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: Activity, match: "/dashboard" },
   { href: "/trends", label: "Trends", icon: LineChart, match: "/trends" },
   { href: "/sentiment", label: "Sentiment", icon: BarChart4, match: "/sentiment" },
-  { href: "/subreddits/news", label: "Subreddits", icon: Layers, match: "/subreddits" },
-  { href: "/events/launch-week", label: "Events", icon: Radar, match: "/events" },
+  { href: "/subreddits/worldnews", label: "Subreddits", icon: Layers, match: "/subreddits" },
+  { href: "/events/elections", label: "Events", icon: Radar, match: "/events" },
   { href: "/about", label: "About", icon: Info, match: "/about" }
 ];
 
