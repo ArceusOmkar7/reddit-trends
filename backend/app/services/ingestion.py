@@ -25,10 +25,7 @@ async def poll_reddit() -> list[PostIn]:
     client = RedditClient()
     posts: list[PostIn] = []
     subreddit_scope = parse_scope(settings.subreddits)
-    logger.info(
-        "Starting ingestion cycle",
-        extra={"subreddits": subreddit_scope},
-    )
+    logger.info("Starting ingestion cycle | subreddits=%s", ", ".join(subreddit_scope))
 
     for subreddit in subreddit_scope:
         items = await client.fetch_new_posts(subreddit)
