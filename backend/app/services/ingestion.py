@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
+import logging
+
 from app.clients.reddit import RedditClient
 from app.core.config import settings
 from app.models.schemas import PostIn
@@ -12,9 +14,13 @@ def parse_scope(value: str) -> list[str]:
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
+logger = logging.getLogger("reddit_trends.ingestion")
+
+
 async def poll_reddit() -> list[PostIn]:
     client = RedditClient()
     posts: list[PostIn] = []
+    logger.info("Starting ingestion cycle")
 
     for subreddit in parse_scope(settings.subreddits):
         items = await client.fetch_new_posts(subreddit)
@@ -33,7 +39,13 @@ async def poll_reddit() -> list[PostIn]:
                 )
             )
 
+    inserted = 0
     if posts:
-        store_posts(posts)
+        inserted = store_posts(posts)
+
+    logger.info(
+        "Ingestion cycle complete",
+        extra={"fetched": len(posts), "inserted": inserted},
+    )
 
     return posts

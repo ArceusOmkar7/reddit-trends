@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import logging
 import sqlite3
 from pathlib import Path
 
 from app.core.config import settings
+
+logger = logging.getLogger("reddit_trends.db")
 
 
 def _resolve_sqlite_path(database_url: str) -> Path:
@@ -164,3 +167,4 @@ def init_db() -> None:
 
     connection.commit()
     connection.close()
+    logger.info("Database initialized")

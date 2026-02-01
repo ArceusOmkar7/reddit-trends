@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -11,6 +12,7 @@ from app.services.scheduler import run_interval
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+	logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 	init_db()
 	if settings.enable_ingestion:
 		async def task() -> None:
