@@ -24,9 +24,13 @@ logger = logging.getLogger("reddit_trends.ingestion")
 async def poll_reddit() -> list[PostIn]:
     client = RedditClient()
     posts: list[PostIn] = []
-    logger.info("Starting ingestion cycle")
+    subreddit_scope = parse_scope(settings.subreddits)
+    logger.info(
+        "Starting ingestion cycle",
+        extra={"subreddits": subreddit_scope},
+    )
 
-    for subreddit in parse_scope(settings.subreddits):
+    for subreddit in subreddit_scope:
         items = await client.fetch_new_posts(subreddit)
         for item in items:
             posts.append(
