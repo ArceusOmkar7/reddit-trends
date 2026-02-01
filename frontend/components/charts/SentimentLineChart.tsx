@@ -28,7 +28,7 @@ export default function SentimentLineChart({
   }
 
   return (
-    <div className="h-64">
+    <div className="h-64" role="img" aria-label="Sentiment line chart">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 10, right: 20, bottom: 0, left: -10 }}>
           <XAxis dataKey="time" tick={{ fill: chartTheme.axis }} />

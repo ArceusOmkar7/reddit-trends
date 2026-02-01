@@ -27,12 +27,13 @@ export default function SentimentDistributionChart({
   }
 
   return (
-    <div className="h-64">
+    <div className="h-64" role="img" aria-label="Sentiment distribution chart">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
             data={data}
             dataKey="value"
+            nameKey="label"
             innerRadius={55}
             outerRadius={90}
             paddingAngle={4}
