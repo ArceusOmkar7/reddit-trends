@@ -68,7 +68,7 @@
 ## 7. QA & Review
 - [x] Run backend smoke test
 - [x] Run end-to-end smoke test
-- [ ] Run frontend smoke test
+- [x] Run frontend smoke test
 - [ ] Verify polling interval and data freshness
 - [ ] Validate trend spikes against known events
 - [ ] Check UI against design goals
