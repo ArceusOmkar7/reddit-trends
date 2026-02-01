@@ -22,8 +22,8 @@
 - [x] Build persistence layer (single DB)
 - [x] Create NLP pipeline: lightweight sentiment scoring
 - [x] Implement trend analysis: keyword frequency + spike detection
-- [ ] Create REST endpoints for raw data
-- [ ] Create REST endpoints for aggregated analytics
+- [x] Create REST endpoints for raw data
+- [x] Create REST endpoints for aggregated analytics
 - [x] Add health/status endpoint
 - [ ] Add tests for ingestion and analytics modules
 

@@ -39,3 +39,27 @@ class TrendSnapshotRecord(BaseModel):
     keyword_id: Optional[int] = None
     subreddit_id: Optional[int] = None
     event_id: Optional[int] = None
+
+
+class PostResponse(BaseModel):
+    id: str
+    timestamp: str
+    subreddit: str
+    title: Optional[str] = None
+    body: Optional[str] = None
+    score: int = 0
+    comment_count: int = 0
+
+
+class SentimentSummary(BaseModel):
+    timestamp: str
+    label: str
+    sentiment: float
+
+
+class TrendSummary(BaseModel):
+    timestamp: str
+    keyword: str
+    velocity: float
+    spike: float
+
