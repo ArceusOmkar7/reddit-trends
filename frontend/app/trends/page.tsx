@@ -59,8 +59,8 @@ export default function TrendsPage() {
 
       <Card title="Accelerating topics" subtitle="Top terms with strongest momentum">
         <div className="space-y-3">
-          {data?.trendCards.map((topic) => (
-            <TrendCard key={topic.keyword} {...topic} />
+          {data?.trendCards.map((topic, index) => (
+            <TrendCard key={`${topic.keyword}-${index}`} {...topic} />
           ))}
         </div>
       </Card>

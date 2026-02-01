@@ -63,8 +63,8 @@ export default function DashboardPage() {
           subtitle="Keywords with the sharpest acceleration"
         >
           <div className="space-y-3">
-            {data?.trendingTopics.map((topic) => (
-              <TrendCard key={topic.keyword} {...topic} />
+            {data?.trendingTopics.map((topic, index) => (
+              <TrendCard key={`${topic.keyword}-${index}`} {...topic} />
             ))}
           </div>
         </Card>

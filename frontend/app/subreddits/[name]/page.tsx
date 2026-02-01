@@ -63,8 +63,8 @@ export default function SubredditPage() {
 
       <Card title="Dominant topics" subtitle="Recurring themes in top posts">
         <div className="space-y-3">
-          {data?.topics.map((topic) => (
-            <TrendCard key={topic.keyword} {...topic} />
+          {data?.topics.map((topic, index) => (
+            <TrendCard key={`${topic.keyword}-${index}`} {...topic} />
           ))}
         </div>
       </Card>

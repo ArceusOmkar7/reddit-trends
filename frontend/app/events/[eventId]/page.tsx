@@ -57,8 +57,8 @@ export default function EventPage() {
 
       <Card title="Event-specific trends" subtitle="Keywords driving the conversation">
         <div className="space-y-3">
-          {data?.topicCards.map((topic) => (
-            <TrendCard key={topic.keyword} {...topic} />
+          {data?.topicCards.map((topic, index) => (
+            <TrendCard key={`${topic.keyword}-${index}`} {...topic} />
           ))}
         </div>
       </Card>
