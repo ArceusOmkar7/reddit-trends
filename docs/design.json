@@ -1,0 +1,301 @@
+{
+  "designSystemProfile": {
+    "meta": {
+      "extractedFrom": "Revona - FinTech/SaaS Landing Page",
+      "purpose": "AI-replicable design system context for Copilot",
+      "version": "1.0"
+    },
+
+    "brandIdentity": {
+      "style": "Modern, clean, optimistic SaaS",
+      "personality": "Trustworthy yet approachable; energetic but professional",
+      "vibe": "Finance reimagined — structured data made feel friendly and vibrant",
+      "logoStyle": "Lowercase wordmark with a small geometric icon prefix; uses brand purple"
+    },
+
+    "colorPalette": {
+      "primary": {
+        "purple": {
+          "base": "#6C3CE1",
+          "light": "#8B5FE8",
+          "usage": "Primary CTAs, key headlines accent words, active states, logo"
+        }
+      },
+      "accent": {
+        "orange": {
+          "base": "#FF6B35",
+          "usage": "Secondary CTAs, highlight badges, energetic accents"
+        },
+        "coral": {
+          "base": "#FF5C5C",
+          "usage": "Alert states, delete actions, badge highlights"
+        },
+        "green": {
+          "base": "#22C55E",
+          "usage": "Success states, positive indicators, growth metrics"
+        },
+        "yellow": {
+          "base": "#FACC15",
+          "usage": "Warning states, star ratings, highlight strips"
+        }
+      },
+      "neutrals": {
+        "background": {
+          "white": "#FFFFFF",
+          "offWhite": "#F8F9FA",
+          "lightGray": "#F1F3F5"
+        },
+        "text": {
+          "primary": "#1A1A2E",
+          "secondary": "#4A4A6A",
+          "muted": "#9CA3AF"
+        },
+        "border": "#E5E7EB"
+      },
+      "sectionBackgrounds": {
+        "purpleTint": "#F3F0FF",
+        "peachTint": "#FFF3EE",
+        "graySection": "#F5F5FA",
+        "darkFooter": "#1A1A2E"
+      }
+    },
+
+    "typography": {
+      "fontFamily": {
+        "heading": "Inter or similar clean geometric sans-serif",
+        "body": "Inter or similar clean geometric sans-serif",
+        "mono": "Not prominently used"
+      },
+      "headingScale": {
+        "h1": {
+          "size": "48–56px",
+          "weight": 700,
+          "lineHeight": 1.1,
+          "usage": "Hero headline; uses multi-line stacking with accent color on key word"
+        },
+        "h2": {
+          "size": "32–40px",
+          "weight": 700,
+          "lineHeight": 1.2,
+          "usage": "Section headings; often centered; accent color applied to one keyword"
+        },
+        "h3": {
+          "size": "20–24px",
+          "weight": 600,
+          "lineHeight": 1.3,
+          "usage": "Card titles, feature titles"
+        },
+        "h4": {
+          "size": "16–18px",
+          "weight": 600,
+          "lineHeight": 1.4,
+          "usage": "Sub-labels, small card headers"
+        }
+      },
+      "body": {
+        "large": { "size": "16px", "weight": 400, "lineHeight": 1.6 },
+        "default": { "size": "14px", "weight": 400, "lineHeight": 1.5 },
+        "small": { "size": "12px", "weight": 400, "lineHeight": 1.4 },
+        "caption": { "size": "11–12px", "weight": 500, "usage": "Labels, tags, badges" }
+      },
+      "textPatterns": {
+        "accentedHeadline": "One or two keywords in headlines are colored purple or orange to draw focus",
+        "italicAccent": "Accent words occasionally italicized for added emphasis",
+        "uppercaseLabels": "Section category labels are sometimes uppercase + letter-spaced"
+      }
+    },
+
+    "spacing": {
+      "scale": {
+        "xs": "4px",
+        "sm": "8px",
+        "md": "16px",
+        "lg": "24px",
+        "xl": "32px",
+        "2xl": "48px",
+        "3xl": "64px",
+        "4xl": "96px"
+      },
+      "sectionPadding": {
+        "vertical": "80–120px between major page sections",
+        "horizontal": "Max content width ~1200px; centered with ~24–40px side padding"
+      },
+      "cardInternalPadding": "24–32px",
+      "gapBetweenCards": "16–24px"
+    },
+
+    "layout": {
+      "gridSystem": {
+        "maxWidth": "1200px",
+        "columns": 12,
+        "gutter": "24px",
+        "alignment": "Center-aligned page layout"
+      },
+      "commonLayouts": {
+        "heroSection": {
+          "structure": "Left-aligned text (60% width) with right-aligned graphic/product mockup cluster (40%)",
+          "textAlignment": "Left",
+          "visualComposition": "Multiple overlapping product screenshots arranged in asymmetric floating grid on right"
+        },
+        "featureGrid": {
+          "structure": "2-column or 3-column equal card grid",
+          "cardStyle": "Rounded containers with light background, icon at top-left, title, then description"
+        },
+        "twoColumnHighlight": {
+          "structure": "Alternating left/right blocks; one side colored background card, other side content or product preview",
+          "usage": "Used for 'Enterprise' vs 'Startup' style contrasts"
+        },
+        "testimonialSection": {
+          "structure": "Centered, single large quote block with avatar + name below",
+          "maxWidth": "720px",
+          "alignment": "Center"
+        },
+        "faqSection": {
+          "structure": "Left column: short intro text + avatar cluster; Right column: stacked accordion items",
+          "split": "Approx 35% / 65%"
+        },
+        "footerLayout": {
+          "structure": "Dark background; 4-column link grid on top, followed by single-row legal/social bar",
+          "brandColor": "White text on dark (#1A1A2E)"
+        }
+      }
+    },
+
+    "components": {
+      "buttons": {
+        "primary": {
+          "background": "#6C3CE1",
+          "textColor": "#FFFFFF",
+          "borderRadius": "24–28px (fully pill-shaped)",
+          "padding": "12px 28px",
+          "fontSize": "14px",
+          "fontWeight": 600,
+          "shadow": "0 4px 12px rgba(108,60,225,0.3)",
+          "hoverEffect": "Slight scale-up + deeper shadow"
+        },
+        "secondary": {
+          "background": "transparent",
+          "border": "2px solid #6C3CE1",
+          "textColor": "#6C3CE1",
+          "borderRadius": "24–28px",
+          "usage": "Paired beside primary CTA as a lighter alternative"
+        },
+        "accentOrange": {
+          "background": "#FF6B35",
+          "textColor": "#FFFFFF",
+          "borderRadius": "24–28px",
+          "usage": "Used for secondary prominent actions or energy-focused CTAs"
+        },
+        "ghost": {
+          "background": "transparent",
+          "textColor": "#6C3CE1",
+          "border": "none",
+          "usage": "Inline links styled as text buttons; may include arrow icon"
+        }
+      },
+      "cards": {
+        "default": {
+          "background": "#FFFFFF",
+          "borderRadius": "16–20px",
+          "border": "1px solid #E5E7EB",
+          "shadow": "0 2px 8px rgba(0,0,0,0.06)",
+          "padding": "24–32px"
+        },
+        "tinted": {
+          "background": "#F3F0FF (purple tint) or #FFF3EE (peach tint)",
+          "borderRadius": "16–20px",
+          "border": "none",
+          "shadow": "none or very subtle",
+          "usage": "Feature highlight cards, CTA banners"
+        },
+        "elevated": {
+          "shadow": "0 8px 24px rgba(0,0,0,0.1)",
+          "usage": "Product mockup frames, focal-point cards"
+        }
+      },
+      "icons": {
+        "style": "Rounded, slightly thick stroke or filled — friendly aesthetic",
+        "size": "24–40px depending on context",
+        "containerStyle": "Often placed inside a tinted circle or rounded square background (e.g., purple circle for primary features)",
+        "containerSize": "40–48px",
+        "containerRadius": "50% (circle) or 12px (rounded square)"
+      },
+      "badges_and_tags": {
+        "style": "Small pill-shaped labels",
+        "borderRadius": "12–14px",
+        "padding": "4px 12px",
+        "fontSize": "11–12px",
+        "fontWeight": 600,
+        "variants": {
+          "purple": { "background": "#EDE9FF", "text": "#6C3CE1" },
+          "orange": { "background": "#FFF0E8", "text": "#FF6B35" },
+          "green": { "background": "#ECFDF5", "text": "#22C55E" }
+        }
+      },
+      "avatars": {
+        "shape": "Circle",
+        "sizes": ["32px", "40px", "56px"],
+        "grouping": "Overlapping stack with -8px offset when displayed as a cluster",
+        "border": "2–3px white border for separation in clusters"
+      },
+      "accordion": {
+        "style": "Flat rows with bottom border separator",
+        "expandIcon": "Chevron or plus/minus, right-aligned",
+        "padding": "16px 0",
+        "border": "1px solid #E5E7EB bottom only"
+      },
+      "productMockups": {
+        "frame": "Rounded rectangle (16–20px radius), subtle shadow, white or light gray background",
+        "style": "Screenshot-style UI previews rendered at slight angles or flat",
+        "composition": "Multiple mockups layered/overlapping to form a visual cluster — asymmetric and dynamic"
+      }
+    },
+
+    "visualPatterns": {
+      "accentHighlighting": "Key metric numbers or words in headlines are colored (purple, orange, or green) to create focal points",
+      "floatingElements": "Product screenshots and UI elements float with slight shadows rather than being rigidly aligned",
+      "sectionDivision": "Sections alternate between white and tinted (purple/peach/gray) backgrounds for rhythm",
+      "iconMotif": "Repeated use of purple-circled icons as a visual signature for feature lists",
+      "dataVisualization": "Small inline charts, progress bars, and metric cards embedded within product mockups to convey value",
+      "asymmetricComposition": "Hero and feature sections use asymmetric left-heavy or right-heavy layouts to avoid monotony",
+      "whitespaceGenerosity": "Generous padding between sections creates breathable, uncluttered feel"
+    },
+
+    "interactionPatterns": {
+      "buttonHover": "Scale to 1.03 + shadow deepens",
+      "cardHover": "Subtle lift (translateY -2px) + shadow increase",
+      "accordionToggle": "Smooth expand/collapse with chevron rotation (180deg)",
+      "navLinks": "Underline or color shift on hover; active state uses primary purple"
+    },
+
+    "navigationBar": {
+      "style": "Fixed or sticky top bar; white background with subtle bottom border or shadow on scroll",
+      "layout": "Logo left, nav links center, CTA button right",
+      "ctaStyle": "Primary purple pill button; stands out from flat nav links",
+      "linkStyle": "Dark text, no underline; hover turns purple"
+    },
+
+    "responsiveNotes": {
+      "breakpoints": {
+        "desktop": "1200px+",
+        "tablet": "768–1199px",
+        "mobile": "< 768px"
+      },
+      "mobilePatterns": {
+        "heroStack": "Text stacks above mockup graphic; full-width",
+        "cardGridCollapse": "3-col → 2-col → 1-col as viewport shrinks",
+        "navCollapse": "Hamburger menu; CTA button remains visible"
+      }
+    },
+
+    "designPrinciples": [
+      "Contrast through color: A single accent keyword in a headline does more than bold or size changes",
+      "Card-based modularity: All content lives inside clearly bounded card containers",
+      "Visual hierarchy via weight + color: Size, weight, and hue all work together — not just size alone",
+      "Friendly geometry: Rounded corners everywhere (pills, cards, avatars) — no sharp edges",
+      "Purposeful asymmetry: Layouts intentionally break symmetry to feel dynamic, not static",
+      "Data as storytelling: Metric cards and mini-charts are used to make abstract value tangible",
+      "Tinted backgrounds as section rhythm: Alternating white and soft tinted sections replace horizontal rules as dividers"
+    ]
+  }
+}
