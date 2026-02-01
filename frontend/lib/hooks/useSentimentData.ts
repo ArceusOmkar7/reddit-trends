@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchSentimentData } from "@/lib/mock/api";
+import { fetchSentimentData } from "@/lib/api/backend";
 import { useAsyncData } from "@/lib/hooks/useAsyncData";
 import type { SentimentData } from "@/lib/types";
 

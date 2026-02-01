@@ -6,7 +6,7 @@ from fastapi import APIRouter, Query
 
 from datetime import datetime, timezone
 
-from app.models.schemas import DashboardSummary, SentimentSummary, TrendSummary
+from app.models.schemas import DashboardSummary, EventSummary, SentimentSummary, SubredditSummary, TrendSummary
 from app.repositories.analytics import fetch_sentiment_series, fetch_trend_snapshots
 from app.repositories.dashboard import (
     fetch_active_events,
@@ -16,6 +16,14 @@ from app.repositories.dashboard import (
     fetch_trending_topic_contexts,
     fetch_trending_topics,
     fetch_volume_series,
+)
+from app.repositories.subreddit_analytics import (
+    fetch_event_sentiment,
+    fetch_event_topics,
+    fetch_event_volume,
+    fetch_subreddit_kpis,
+    fetch_subreddit_sentiment,
+    fetch_subreddit_topics,
 )
 
 router = APIRouter(prefix="/analytics")
@@ -90,4 +98,28 @@ def get_dashboard(hours: int = Query(24, ge=1, le=168)) -> DashboardSummary:
         trendingTopics=formatted_topics,
         activeSubreddits=active_subreddits,
         activeEvents=active_events,
+    )
+
+
+@router.get("/subreddits/{name}", response_model=SubredditSummary)
+def get_subreddit_summary(
+    name: str, hours: int = Query(24, ge=1, le=168)
+) -> SubredditSummary:
+    return SubredditSummary(
+        lastUpdated=datetime.now(tz=timezone.utc).isoformat(),
+        kpis=fetch_subreddit_kpis(name, hours=hours),
+        sentimentTrend=fetch_subreddit_sentiment(name, hours=hours),
+        topics=fetch_subreddit_topics(name, hours=hours),
+    )
+
+
+@router.get("/events/{event_id}", response_model=EventSummary)
+def get_event_summary(
+    event_id: str, hours: int = Query(24, ge=1, le=168)
+) -> EventSummary:
+    return EventSummary(
+        lastUpdated=datetime.now(tz=timezone.utc).isoformat(),
+        volumeTrend=fetch_event_volume(event_id, hours=hours),
+        sentimentTrend=fetch_event_sentiment(event_id, hours=hours),
+        topicCards=fetch_event_topics(event_id, hours=hours),
     )

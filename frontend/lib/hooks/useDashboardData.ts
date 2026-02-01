@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchDashboardData } from "@/lib/mock/api";
+import { fetchDashboardData } from "@/lib/api/backend";
 import { useAsyncData } from "@/lib/hooks/useAsyncData";
 import type { DashboardData } from "@/lib/types";
 

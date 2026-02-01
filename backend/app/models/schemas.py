@@ -98,3 +98,17 @@ class DashboardSummary(BaseModel):
     activeSubreddits: list[str]
     activeEvents: list[str]
 
+
+class SubredditSummary(BaseModel):
+    lastUpdated: str
+    kpis: list[dict]
+    sentimentTrend: list[SentimentPoint]
+    topics: list[DashboardTopic]
+
+
+class EventSummary(BaseModel):
+    lastUpdated: str
+    volumeTrend: list[VolumePoint]
+    sentimentTrend: list[SentimentPoint]
+    topicCards: list[DashboardTopic]
+

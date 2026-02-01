@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchSubredditData } from "@/lib/mock/api";
+import { fetchSubredditData } from "@/lib/api/backend";
 import { useAsyncData } from "@/lib/hooks/useAsyncData";
 import type { SubredditData } from "@/lib/types";
 

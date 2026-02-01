@@ -51,7 +51,7 @@
 - [x] Implement system info/about page
 
 ## 5. Integration
-- [ ] Wire frontend to backend API endpoints
+- [x] Wire frontend to backend API endpoints
 - [ ] Validate data schemas match UI expectations
 - [ ] Add error and empty-state UI
 - [ ] Add refresh timestamp and status in header
