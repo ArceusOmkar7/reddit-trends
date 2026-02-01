@@ -30,16 +30,27 @@ def store_trends(records: Iterable[TrendSnapshotRecord]) -> int:
         INSERT OR REPLACE INTO trend_snapshots (
             id,
             timestamp,
-            keyword,
+            keyword_id,
             velocity,
             spike,
             context,
-            keyword_id,
             subreddit_id,
             event_id
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """,
-        payload,
+        [
+            (
+                record.id,
+                record.timestamp,
+                record.keyword_id,
+                record.velocity,
+                record.spike,
+                record.context,
+                record.subreddit_id,
+                record.event_id,
+            )
+            for record in records
+        ],
     )
 
     connection.commit()
@@ -53,10 +64,12 @@ def get_latest_keyword_snapshot(keyword: str) -> Optional[TrendSnapshotRecord]:
     cursor = connection.cursor()
     cursor.execute(
         """
-        SELECT id, timestamp, keyword, velocity, spike, context, keyword_id, subreddit_id, event_id
-        FROM trend_snapshots
-        WHERE keyword = ?
-        ORDER BY timestamp DESC
+        SELECT ts.id, ts.timestamp, k.phrase AS keyword, ts.velocity, ts.spike, ts.context,
+               ts.keyword_id, ts.subreddit_id, ts.event_id
+        FROM trend_snapshots ts
+        JOIN keywords k ON k.id = ts.keyword_id
+        WHERE k.phrase = ?
+        ORDER BY ts.timestamp DESC
         LIMIT 1
         """,
         (keyword,),

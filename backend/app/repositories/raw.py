@@ -12,10 +12,11 @@ def fetch_posts(limit: int = 100, subreddit: Optional[str] = None) -> list[PostR
     if subreddit:
         cursor.execute(
             """
-            SELECT id, timestamp, subreddit, title, body, score, comment_count
-            FROM posts
-            WHERE subreddit = ?
-            ORDER BY timestamp DESC
+            SELECT p.id, p.timestamp, s.name AS subreddit, p.title, p.body, p.score, p.comment_count
+            FROM posts p
+            JOIN subreddits s ON s.id = p.subreddit_id
+            WHERE s.name = ?
+            ORDER BY p.timestamp DESC
             LIMIT ?
             """,
             (subreddit, limit),
@@ -23,9 +24,10 @@ def fetch_posts(limit: int = 100, subreddit: Optional[str] = None) -> list[PostR
     else:
         cursor.execute(
             """
-            SELECT id, timestamp, subreddit, title, body, score, comment_count
-            FROM posts
-            ORDER BY timestamp DESC
+            SELECT p.id, p.timestamp, s.name AS subreddit, p.title, p.body, p.score, p.comment_count
+            FROM posts p
+            JOIN subreddits s ON s.id = p.subreddit_id
+            ORDER BY p.timestamp DESC
             LIMIT ?
             """,
             (limit,),

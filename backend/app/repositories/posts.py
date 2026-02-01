@@ -21,7 +21,6 @@ def store_posts(posts: Iterable[PostIn]) -> int:
             (
                 post.id,
                 post.timestamp,
-                subreddit,
                 subreddit_id,
                 post.title,
                 post.body,
@@ -35,13 +34,12 @@ def store_posts(posts: Iterable[PostIn]) -> int:
         INSERT OR IGNORE INTO posts (
             id,
             timestamp,
-            subreddit,
             subreddit_id,
             title,
             body,
             score,
             comment_count
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
         """,
         enriched,
     )

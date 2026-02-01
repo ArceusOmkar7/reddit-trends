@@ -29,13 +29,22 @@ def store_sentiment(records: Iterable[SentimentRecord]) -> int:
             id,
             timestamp,
             context,
-            label,
             sentiment,
             subreddit_id,
             event_id
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?)
         """,
-        payload,
+        [
+            (
+                record.id,
+                record.timestamp,
+                record.context,
+                record.sentiment,
+                record.subreddit_id,
+                record.event_id,
+            )
+            for record in records
+        ],
     )
 
     connection.commit()

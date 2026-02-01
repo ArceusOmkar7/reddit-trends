@@ -73,8 +73,7 @@ def init_db() -> None:
         CREATE TABLE IF NOT EXISTS posts (
             id TEXT PRIMARY KEY,
             timestamp TEXT NOT NULL,
-            subreddit TEXT NOT NULL,
-            subreddit_id INTEGER,
+            subreddit_id INTEGER NOT NULL,
             title TEXT,
             body TEXT,
             score INTEGER,
@@ -86,11 +85,23 @@ def init_db() -> None:
 
     cursor.execute(
         """
+        CREATE TABLE IF NOT EXISTS post_keywords (
+            post_id TEXT NOT NULL,
+            keyword_id INTEGER NOT NULL,
+            count INTEGER NOT NULL,
+            PRIMARY KEY (post_id, keyword_id),
+            FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+            FOREIGN KEY (keyword_id) REFERENCES keywords(id) ON DELETE CASCADE
+        );
+        """
+    )
+
+    cursor.execute(
+        """
         CREATE TABLE IF NOT EXISTS comments (
             id TEXT PRIMARY KEY,
             timestamp TEXT NOT NULL,
-            subreddit TEXT NOT NULL,
-            subreddit_id INTEGER,
+            subreddit_id INTEGER NOT NULL,
             post_id TEXT NOT NULL,
             body TEXT,
             score INTEGER,
@@ -106,7 +117,6 @@ def init_db() -> None:
             id TEXT PRIMARY KEY,
             timestamp TEXT NOT NULL,
             context TEXT NOT NULL,
-            label TEXT NOT NULL,
             sentiment REAL NOT NULL,
             subreddit_id INTEGER,
             event_id INTEGER,
@@ -121,14 +131,13 @@ def init_db() -> None:
         CREATE TABLE IF NOT EXISTS trend_snapshots (
             id TEXT PRIMARY KEY,
             timestamp TEXT NOT NULL,
-            keyword TEXT NOT NULL,
+            keyword_id INTEGER NOT NULL,
             velocity REAL NOT NULL,
             spike REAL NOT NULL,
             context TEXT NOT NULL,
-            keyword_id INTEGER,
             subreddit_id INTEGER,
             event_id INTEGER,
-            FOREIGN KEY (keyword_id) REFERENCES keywords(id) ON DELETE SET NULL,
+            FOREIGN KEY (keyword_id) REFERENCES keywords(id) ON DELETE CASCADE,
             FOREIGN KEY (subreddit_id) REFERENCES subreddits(id) ON DELETE SET NULL,
             FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE SET NULL
         );
@@ -145,13 +154,9 @@ def init_db() -> None:
     ensure_column("comments", "subreddit_id", "subreddit_id INTEGER")
     ensure_column("sentiment_series", "subreddit_id", "subreddit_id INTEGER")
     ensure_column("sentiment_series", "event_id", "event_id INTEGER")
-    ensure_column("trend_snapshots", "keyword_id", "keyword_id INTEGER")
     ensure_column("trend_snapshots", "subreddit_id", "subreddit_id INTEGER")
     ensure_column("trend_snapshots", "event_id", "event_id INTEGER")
 
-    cursor.execute(
-        "CREATE INDEX IF NOT EXISTS idx_posts_subreddit_time ON posts(subreddit, timestamp);"
-    )
     cursor.execute(
         "CREATE INDEX IF NOT EXISTS idx_posts_subreddit_id_time ON posts(subreddit_id, timestamp);"
     )
@@ -162,7 +167,10 @@ def init_db() -> None:
         "CREATE INDEX IF NOT EXISTS idx_sentiment_context_time ON sentiment_series(context, timestamp);"
     )
     cursor.execute(
-        "CREATE INDEX IF NOT EXISTS idx_trends_keyword_time ON trend_snapshots(keyword, timestamp);"
+        "CREATE INDEX IF NOT EXISTS idx_trends_keyword_time ON trend_snapshots(keyword_id, timestamp);"
+    )
+    cursor.execute(
+        "CREATE INDEX IF NOT EXISTS idx_post_keywords_keyword ON post_keywords(keyword_id);"
     )
 
     connection.commit()

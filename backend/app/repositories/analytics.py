@@ -19,20 +19,22 @@ def fetch_sentiment_series(hours: int = 24, subreddit: Optional[str] = None) -> 
     if subreddit:
         cursor.execute(
             """
-            SELECT timestamp, label, sentiment
-            FROM sentiment_series
-            WHERE label = ? AND timestamp >= ?
-            ORDER BY timestamp ASC
+            SELECT s.timestamp, r.name AS label, s.sentiment
+            FROM sentiment_series s
+            JOIN subreddits r ON r.id = s.subreddit_id
+            WHERE r.name = ? AND s.timestamp >= ?
+            ORDER BY s.timestamp ASC
             """,
             (subreddit, since),
         )
     else:
         cursor.execute(
             """
-            SELECT timestamp, label, sentiment
-            FROM sentiment_series
-            WHERE timestamp >= ?
-            ORDER BY timestamp ASC
+            SELECT s.timestamp, r.name AS label, s.sentiment
+            FROM sentiment_series s
+            LEFT JOIN subreddits r ON r.id = s.subreddit_id
+            WHERE s.timestamp >= ?
+            ORDER BY s.timestamp ASC
             """,
             (since,),
         )
@@ -55,10 +57,11 @@ def fetch_trend_snapshots(hours: int = 24) -> list[TrendSummary]:
     since = _since(hours)
     cursor.execute(
         """
-        SELECT timestamp, keyword, velocity, spike
-        FROM trend_snapshots
-        WHERE timestamp >= ?
-        ORDER BY spike DESC
+        SELECT ts.timestamp, k.phrase AS keyword, ts.velocity, ts.spike
+        FROM trend_snapshots ts
+        JOIN keywords k ON k.id = ts.keyword_id
+        WHERE ts.timestamp >= ?
+        ORDER BY ts.spike DESC
         """,
         (since,),
     )

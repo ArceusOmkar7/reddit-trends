@@ -39,3 +39,15 @@ def test_sentiment_aggregation(client):
     data = response.json()
     assert data
     assert data[-1]["label"] == "technology"
+
+
+def test_dashboard_summary(client):
+    response = client.get("/analytics/dashboard?hours=1")
+    assert response.status_code == 200
+    payload = response.json()
+    assert "kpis" in payload
+    assert "sentimentTrend" in payload
+    assert "volumeTrend" in payload
+    assert "trendingTopics" in payload
+    assert "activeSubreddits" in payload
+    assert "activeEvents" in payload

@@ -64,7 +64,9 @@
 - [ ] Document deployment steps
 
 ## 7. QA & Review
+- [x] Run backend smoke test
 - [ ] Run end-to-end smoke test
+- [ ] Run frontend smoke test
 - [ ] Verify polling interval and data freshness
 - [ ] Validate trend spikes against known events
 - [ ] Check UI against design goals

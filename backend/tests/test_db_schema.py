@@ -12,14 +12,17 @@ def test_db_schema_tables_and_columns(temp_db):
     tables = {row["name"] for row in cursor.fetchall()}
     assert {"posts", "comments", "sentiment_series", "trend_snapshots"}.issubset(tables)
     assert {"subreddits", "events", "keywords", "event_keywords"}.issubset(tables)
+    assert {"post_keywords"}.issubset(tables)
 
     cursor.execute("PRAGMA table_info(posts);")
     columns = {row["name"] for row in cursor.fetchall()}
     assert "subreddit_id" in columns
+    assert "subreddit" not in columns
 
     cursor.execute("PRAGMA table_info(comments);")
     columns = {row["name"] for row in cursor.fetchall()}
     assert "subreddit_id" in columns
+    assert "subreddit" not in columns
 
     cursor.execute("PRAGMA table_info(sentiment_series);")
     columns = {row["name"] for row in cursor.fetchall()}

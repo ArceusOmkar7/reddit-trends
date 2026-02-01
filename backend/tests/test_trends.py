@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 
 from app.core.config import settings
 from app.models.schemas import PostIn
+from app.repositories.posts import store_posts
 from app.repositories.trends import store_trends
 from app.services.trends import detect_trends
 
@@ -31,6 +32,8 @@ def test_trend_detection(client):
             comment_count=0,
         ),
     ]
+
+    store_posts(posts)
 
     records = detect_trends(posts)
     assert records

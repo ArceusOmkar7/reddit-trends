@@ -21,7 +21,12 @@ class RedditClient:
 
     async def fetch_new_posts(self, subreddit: str, limit: int = 50) -> list[dict[str, Any]]:
         logger.info("Fetching new posts", extra={"subreddit": subreddit, "limit": limit})
-        return await asyncio.to_thread(self._fetch_new_posts_sync, subreddit, limit)
+        posts = await asyncio.to_thread(self._fetch_new_posts_sync, subreddit, limit)
+        logger.info(
+            "Fetch complete",
+            extra={"subreddit": subreddit, "count": len(posts)},
+        )
+        return posts
 
     def _fetch_new_posts_sync(self, subreddit: str, limit: int) -> list[dict[str, Any]]:
         items = []
@@ -36,5 +41,4 @@ class RedditClient:
                     "num_comments": submission.num_comments,
                 }
             )
-        logger.info("Fetched posts", extra={"subreddit": subreddit, "count": len(items)})
         return items

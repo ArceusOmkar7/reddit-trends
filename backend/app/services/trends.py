@@ -9,6 +9,7 @@ from uuid import uuid4
 from app.core.config import settings
 from app.models.schemas import PostIn, TrendSnapshotRecord
 from app.repositories.keywords import get_or_create_keyword_id
+from app.repositories.post_keywords import store_post_keywords
 from app.repositories.trends import get_latest_keyword_snapshot
 
 logger = logging.getLogger("reddit_trends.trends")
@@ -28,9 +29,19 @@ def detect_trends(posts: list[PostIn]) -> list[TrendSnapshotRecord]:
     )
 
     counts = Counter()
+    per_post_mappings: list[tuple[str, int, int]] = []
+
     for keyword in keywords:
         pattern = re.compile(rf"\b{re.escape(keyword)}\b", re.IGNORECASE)
-        counts[keyword] = len(pattern.findall(corpus))
+        total = len(pattern.findall(corpus))
+        counts[keyword] = total
+
+        keyword_id = get_or_create_keyword_id(keyword)
+        for post in posts:
+            content = f"{post.title or ''} {post.body or ''}".lower()
+            count = len(pattern.findall(content))
+            if count > 0:
+                per_post_mappings.append((post.id, keyword_id, count))
 
     timestamp = datetime.now(tz=timezone.utc).isoformat()
     records: list[TrendSnapshotRecord] = []
@@ -52,6 +63,9 @@ def detect_trends(posts: list[PostIn]) -> list[TrendSnapshotRecord]:
                 keyword_id=keyword_id,
             )
         )
+
+    if per_post_mappings:
+        store_post_keywords(per_post_mappings)
 
     logger.info("Trend detection complete", extra={"records": len(records)})
     return records

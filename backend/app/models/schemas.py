@@ -63,3 +63,38 @@ class TrendSummary(BaseModel):
     velocity: float
     spike: float
 
+
+class VolumePoint(BaseModel):
+    time: str
+    value: int
+
+
+class SentimentPoint(BaseModel):
+    time: str
+    value: float
+
+
+class DashboardKpiItem(BaseModel):
+    label: str
+    value: str
+    delta: str
+    trend: str
+
+
+class DashboardTopic(BaseModel):
+    keyword: str
+    velocity: str
+    context: str
+    sentiment: str
+    spike: str
+
+
+class DashboardSummary(BaseModel):
+    lastUpdated: str
+    kpis: list[DashboardKpiItem]
+    sentimentTrend: list[SentimentPoint]
+    volumeTrend: list[VolumePoint]
+    trendingTopics: list[DashboardTopic]
+    activeSubreddits: list[str]
+    activeEvents: list[str]
+
