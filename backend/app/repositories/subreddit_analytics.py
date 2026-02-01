@@ -122,17 +122,19 @@ def fetch_event_volume(event_keyword: str, hours: int = 24) -> list[dict]:
     connection = get_connection()
     cursor = connection.cursor()
     since = _since(hours)
+    event_name = event_keyword.lower()
     cursor.execute(
         """
-        SELECT substr(p.timestamp, 1, 13) AS hour_bucket, COUNT(*) AS count
-        FROM post_keywords pk
-        JOIN keywords k ON k.id = pk.keyword_id
+        SELECT substr(p.timestamp, 1, 13) AS hour_bucket, COUNT(DISTINCT p.id) AS count
+        FROM events e
+        JOIN event_keywords ek ON ek.event_id = e.id
+        JOIN post_keywords pk ON pk.keyword_id = ek.keyword_id
         JOIN posts p ON p.id = pk.post_id
-        WHERE k.phrase = ? AND p.timestamp >= ?
+        WHERE e.name = ? AND p.timestamp >= ?
         GROUP BY hour_bucket
         ORDER BY hour_bucket ASC
         """,
-        (event_keyword, since),
+        (event_name, since),
     )
     rows = cursor.fetchall()
     connection.close()
@@ -143,16 +145,18 @@ def fetch_event_sentiment(event_keyword: str, hours: int = 24) -> list[dict]:
     connection = get_connection()
     cursor = connection.cursor()
     since = _since(hours)
+    event_name = event_keyword.lower()
     cursor.execute(
         """
-        SELECT p.timestamp, p.title, p.body
-        FROM post_keywords pk
-        JOIN keywords k ON k.id = pk.keyword_id
+        SELECT DISTINCT p.id, p.timestamp, p.title, p.body
+        FROM events e
+        JOIN event_keywords ek ON ek.event_id = e.id
+        JOIN post_keywords pk ON pk.keyword_id = ek.keyword_id
         JOIN posts p ON p.id = pk.post_id
-        WHERE k.phrase = ? AND p.timestamp >= ?
+        WHERE e.name = ? AND p.timestamp >= ?
         ORDER BY p.timestamp ASC
         """,
-        (event_keyword, since),
+        (event_name, since),
     )
     rows = cursor.fetchall()
     connection.close()
@@ -173,20 +177,25 @@ def fetch_event_topics(event_keyword: str, hours: int = 24) -> list[dict]:
     connection = get_connection()
     cursor = connection.cursor()
     since = _since(hours)
+    event_name = event_keyword.lower()
     cursor.execute(
         """
         SELECT k2.phrase AS keyword, SUM(pk2.count) AS mentions
-        FROM post_keywords pk
-        JOIN keywords k ON k.id = pk.keyword_id
-        JOIN posts p ON p.id = pk.post_id
-        JOIN post_keywords pk2 ON pk2.post_id = p.id
+        FROM (
+            SELECT DISTINCT p.id
+            FROM events e
+            JOIN event_keywords ek ON ek.event_id = e.id
+            JOIN post_keywords pk ON pk.keyword_id = ek.keyword_id
+            JOIN posts p ON p.id = pk.post_id
+            WHERE e.name = ? AND p.timestamp >= ?
+        ) ep
+        JOIN post_keywords pk2 ON pk2.post_id = ep.id
         JOIN keywords k2 ON k2.id = pk2.keyword_id
-        WHERE k.phrase = ? AND p.timestamp >= ?
         GROUP BY k2.phrase
         ORDER BY mentions DESC
         LIMIT 5
         """,
-        (event_keyword, since),
+        (event_name, since),
     )
     rows = cursor.fetchall()
     connection.close()

@@ -92,7 +92,7 @@ def fetch_active_events(limit: int = 6) -> list[str]:
     if rows:
         return [row["name"] for row in rows]
 
-    keywords = [item.strip() for item in settings.keywords.split(",") if item.strip()]
+    keywords = [item.strip().lower() for item in settings.keywords.split(",") if item.strip()]
     return keywords[:limit]
 
 

@@ -20,6 +20,8 @@
 - [x] Implement ingestion scheduler (5-min default)
 - [x] Define database models: posts, comments, sentiment, trends
 - [x] Build persistence layer (single DB)
+- [x] Seed keywords/events and map event_keywords
+- [x] Implement first-class event analytics via event mappings
 - [x] Create NLP pipeline: lightweight sentiment scoring
 - [x] Implement trend analysis: keyword frequency + spike detection
 - [x] Create REST endpoints for raw data

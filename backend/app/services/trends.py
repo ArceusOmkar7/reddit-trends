@@ -8,6 +8,7 @@ from uuid import uuid4
 
 from app.core.config import settings
 from app.models.schemas import PostIn, TrendSnapshotRecord
+from app.repositories.events import get_event_id_by_name
 from app.repositories.keywords import get_or_create_keyword_id
 from app.repositories.post_keywords import store_post_keywords
 from app.repositories.trends import get_latest_keyword_snapshot
@@ -51,6 +52,7 @@ def detect_trends(posts: list[PostIn]) -> list[TrendSnapshotRecord]:
         previous_velocity = previous.velocity if previous else 0.0
         spike = count / max(previous_velocity, 1.0)
         keyword_id = get_or_create_keyword_id(keyword)
+        event_id = get_event_id_by_name(keyword)
 
         records.append(
             TrendSnapshotRecord(
@@ -61,6 +63,7 @@ def detect_trends(posts: list[PostIn]) -> list[TrendSnapshotRecord]:
                 spike=round(float(spike), 4),
                 context="global",
                 keyword_id=keyword_id,
+                event_id=event_id,
             )
         )
 

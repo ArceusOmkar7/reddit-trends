@@ -176,7 +176,21 @@ def init_db() -> None:
     keywords = [item.strip().lower() for item in settings.keywords.split(",") if item.strip()]
     if keywords:
         cursor.executemany(
+            "INSERT OR IGNORE INTO keywords (phrase) VALUES (?);",
+            [(keyword,) for keyword in keywords],
+        )
+        cursor.executemany(
             "INSERT OR IGNORE INTO events (name) VALUES (?);",
+            [(keyword,) for keyword in keywords],
+        )
+        cursor.executemany(
+            """
+            INSERT OR IGNORE INTO event_keywords (event_id, keyword_id)
+            SELECT e.id, k.id
+            FROM events e
+            JOIN keywords k ON k.phrase = e.name
+            WHERE e.name = ?
+            """,
             [(keyword,) for keyword in keywords],
         )
 
