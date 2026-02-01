@@ -14,17 +14,17 @@
 - [x] Add Docker and docker-compose skeleton
 
 ## 3. Backend (FastAPI)
-- [ ] Scaffold FastAPI app structure
-- [ ] Configure settings management via environment variables
-- [ ] Implement Reddit API client (polling)
-- [ ] Implement ingestion scheduler (5-min default)
-- [ ] Define database models: posts, comments, sentiment, trends
-- [ ] Build persistence layer (single DB)
+- [x] Scaffold FastAPI app structure
+- [x] Configure settings management via environment variables
+- [x] Implement Reddit API client (polling)
+- [x] Implement ingestion scheduler (5-min default)
+- [x] Define database models: posts, comments, sentiment, trends
+- [x] Build persistence layer (single DB)
 - [ ] Create NLP pipeline: lightweight sentiment scoring
 - [ ] Implement trend analysis: keyword frequency + spike detection
 - [ ] Create REST endpoints for raw data
 - [ ] Create REST endpoints for aggregated analytics
-- [ ] Add health/status endpoint
+- [x] Add health/status endpoint
 - [ ] Add tests for ingestion and analytics modules
 
 ## 4. Frontend (React + Vite + Tailwind)
@@ -57,8 +57,8 @@
 - [ ] Add refresh timestamp and status in header
 
 ## 6. Deployment & Ops
-- [ ] Finalize Dockerfiles for backend and frontend
-- [ ] Add docker-compose for local dev
+- [x] Finalize Dockerfiles for backend and frontend
+- [x] Add docker-compose for local dev
 - [ ] Add production build instructions
 - [ ] Configure environment variables for DigitalOcean
 - [ ] Document deployment steps

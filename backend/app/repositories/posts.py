@@ -1,0 +1,59 @@
+from __future__ import annotations
+
+from typing import Iterable
+
+from app.db.database import get_connection
+from app.models.schemas import PostIn
+
+
+def get_or_create_subreddit_id(connection, name: str) -> int:
+    cursor = connection.cursor()
+    cursor.execute("INSERT OR IGNORE INTO subreddits (name) VALUES (?);", (name,))
+    cursor.execute("SELECT id FROM subreddits WHERE name = ?;", (name,))
+    row = cursor.fetchone()
+    return int(row["id"]) if row else 0
+
+
+def store_posts(posts: Iterable[PostIn]) -> int:
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    enriched = []
+    for post in posts:
+        if not post.id:
+            continue
+        subreddit = post.subreddit or ""
+        subreddit_id = get_or_create_subreddit_id(connection, subreddit) if subreddit else None
+        enriched.append(
+            (
+                post.id,
+                post.timestamp,
+                subreddit,
+                subreddit_id,
+                post.title,
+                post.body,
+                post.score,
+                post.comment_count,
+            )
+        )
+
+    cursor.executemany(
+        """
+        INSERT OR IGNORE INTO posts (
+            id,
+            timestamp,
+            subreddit,
+            subreddit_id,
+            title,
+            body,
+            score,
+            comment_count
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        enriched,
+    )
+
+    connection.commit()
+    inserted = cursor.rowcount
+    connection.close()
+    return inserted
