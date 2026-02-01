@@ -27,6 +27,13 @@ export default function SentimentDistributionChart({
   }
 
   const total = data.reduce((sum, slice) => sum + slice.value, 0) || 1;
+  if (!data.length || total === 0) {
+    return (
+      <div className="flex h-64 items-center justify-center text-sm text-ink-secondary">
+        No sentiment mix yet.
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4" role="img" aria-label="Sentiment distribution chart">

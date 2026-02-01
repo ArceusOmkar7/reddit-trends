@@ -54,8 +54,8 @@
 
 ## 5. Integration
 - [x] Wire frontend to backend API endpoints
-- [ ] Validate data schemas match UI expectations
-- [ ] Add error and empty-state UI
+- [x] Validate data schemas match UI expectations
+- [x] Add error and empty-state UI
 - [ ] Add refresh timestamp and status in header
 
 ## 6. Deployment & Ops

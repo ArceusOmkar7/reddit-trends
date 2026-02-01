@@ -32,6 +32,15 @@ export default function KeywordLineChart({
     return <div className="h-64 animate-pulse rounded-2xl bg-surface-lightGray" />;
   }
 
+  const hasSeries = data.some((series) => series.data?.length);
+  if (!hasSeries) {
+    return (
+      <div className="flex h-64 items-center justify-center text-sm text-ink-secondary">
+        No keyword trends yet.
+      </div>
+    );
+  }
+
   return (
     <div className="h-64 w-full min-w-0">
       <ResponsiveContainer width="100%" height={256} minWidth={0}>

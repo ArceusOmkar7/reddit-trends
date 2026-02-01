@@ -37,9 +37,13 @@ export default function DashboardPage() {
       )}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {data?.kpis.map((kpi) => (
-          <StatTile key={kpi.label} {...kpi} />
-        ))}
+        {data?.kpis?.length ? (
+          data.kpis.map((kpi) => <StatTile key={kpi.label} {...kpi} />)
+        ) : (
+          <div className="card-surface p-4 text-sm text-ink-secondary md:col-span-2 xl:col-span-4">
+            No KPI data yet. Run ingestion to populate metrics.
+          </div>
+        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -62,11 +66,15 @@ export default function DashboardPage() {
           title="Trending topics"
           subtitle="Keywords with the sharpest acceleration"
         >
-          <div className="space-y-3">
-            {data?.trendingTopics.map((topic, index) => (
-              <TrendCard key={`${topic.keyword}-${index}`} {...topic} />
-            ))}
-          </div>
+          {data?.trendingTopics?.length ? (
+            <div className="space-y-3">
+              {data.trendingTopics.map((topic, index) => (
+                <TrendCard key={`${topic.keyword}-${index}`} {...topic} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-ink-secondary">No trending topics yet.</div>
+          )}
         </Card>
         <Card
           title="Active focus"
@@ -76,13 +84,17 @@ export default function DashboardPage() {
             <div className="rounded-2xl bg-surface-purpleTint p-4">
               <p className="metric-label">Subreddits</p>
               <p className="mt-2 text-lg font-semibold text-ink-primary">
-                {data?.activeSubreddits.join(", ") || "—"}
+                {data?.activeSubreddits?.length
+                  ? data.activeSubreddits.join(", ")
+                  : "No active subreddits yet."}
               </p>
             </div>
             <div className="rounded-2xl bg-surface-peachTint p-4">
               <p className="metric-label">Events</p>
               <p className="mt-2 text-lg font-semibold text-ink-primary">
-                {data?.activeEvents.join(", ") || "—"}
+                {data?.activeEvents?.length
+                  ? data.activeEvents.join(", ")
+                  : "No active events yet."}
               </p>
             </div>
           </div>

@@ -27,6 +27,14 @@ export default function VolumeAreaChart({
     return <div className="h-64 animate-pulse rounded-2xl bg-surface-lightGray" />;
   }
 
+  if (!data.length) {
+    return (
+      <div className="flex h-64 items-center justify-center text-sm text-ink-secondary">
+        No volume data yet.
+      </div>
+    );
+  }
+
   return (
     <div
       className="h-64 w-full min-w-0"
