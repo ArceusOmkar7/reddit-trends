@@ -25,7 +25,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-64 flex-col border-r border-border-default bg-white px-5 py-6 lg:flex">
+    <aside className="sticky top-0 hidden h-screen w-64 flex-col border-r border-border-default bg-white px-5 py-6 lg:flex">
       <div className="mb-10 flex items-center gap-2">
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-purple text-white shadow-button">
           <span className="text-sm font-semibold">rt</span>

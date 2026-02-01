@@ -33,8 +33,8 @@ export default function KeywordLineChart({
   }
 
   return (
-    <div className="h-64">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="h-64 w-full min-w-0">
+      <ResponsiveContainer width="100%" height={256} minWidth={0}>
         <LineChart margin={{ top: 10, right: 20, bottom: 0, left: -10 }}>
           <XAxis dataKey="time" tick={{ fill: chartTheme.axis }} />
           <YAxis tick={{ fill: chartTheme.axis }} />
