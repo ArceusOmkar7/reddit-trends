@@ -53,7 +53,7 @@ export default function DashboardPage() {
       <SectionHeader
         title="Real-time sentiment & trend"
         accent="overview"
-        description="Live signals from selected subreddits and event keywords." 
+        description="Live signals from selected subreddits and event anchors." 
         actionLabel="Refresh"
         onAction={refetch}
       />
@@ -92,7 +92,7 @@ export default function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
         <Card
           title="Trending topics"
-          subtitle="Keywords with the sharpest acceleration"
+          subtitle="Terms with the sharpest acceleration"
         >
           {data?.trendingTopics?.length ? (
             <div className="space-y-3">

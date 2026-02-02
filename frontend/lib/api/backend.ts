@@ -1,5 +1,6 @@
 import type {
   DashboardData,
+  EmergingTopicData,
   EventData,
   SentimentData,
   TimeSeriesPoint,
@@ -14,6 +15,20 @@ type BackendTrendItem = {
   keyword: string;
   velocity: number;
   spike: number;
+  raw_mentions?: number | null;
+  weighted_mentions?: number | null;
+  previous_mentions?: number | null;
+  window_start?: string | null;
+  window_end?: string | null;
+};
+
+type BackendEmergingTopicItem = {
+  timestamp: string;
+  topic: string;
+  raw_mentions: number;
+  unique_posts: number;
+  velocity: number;
+  first_seen?: string | null;
 };
 
 type BackendSentimentItem = {
@@ -65,13 +80,15 @@ export async function fetchTrendData(window = "24h"): Promise<TrendData> {
     `/analytics/trends?hours=${hours}`
   );
 
+  const numberFormatter = new Intl.NumberFormat(undefined, {
+    maximumFractionDigits: 1
+  });
+
   const grouped = new Map<string, TimeSeriesPoint[]>();
   data.forEach((item) => {
     const series = grouped.get(item.keyword) ?? [];
-    const timeLabel = hours > 24
-      ? formatLocalDateTime(item.timestamp)
-      : formatTime(item.timestamp);
-    series.push({ time: timeLabel, value: item.velocity });
+    const timeLabel = item.window_end ?? item.timestamp;
+    series.push({ time: timeLabel, value: item.velocity * 100 });
     grouped.set(item.keyword, series);
   });
 
@@ -80,12 +97,26 @@ export async function fetchTrendData(window = "24h"): Promise<TrendData> {
     data: series.sort((a, b) => a.time.localeCompare(b.time))
   }));
 
-  const trendCards: TrendTopic[] = data
+  const latestByKeyword = new Map<string, BackendTrendItem>();
+  data.forEach((item) => {
+    const existing = latestByKeyword.get(item.keyword);
+    if (!existing || item.timestamp > existing.timestamp) {
+      latestByKeyword.set(item.keyword, item);
+    }
+  });
+
+  const trendCards: TrendTopic[] = Array.from(latestByKeyword.values())
+    .sort((a, b) => (b.spike - a.spike) || (b.velocity - a.velocity))
     .slice(0, 5)
     .map((item) => ({
       keyword: item.keyword,
-      velocity: `+${Math.round(item.velocity)}%`,
-      spike: `Spike x${item.spike.toFixed(1)}`
+      velocity: `${item.velocity * 100 >= 0 ? "+" : ""}${Math.round(
+        item.velocity * 100
+      )}%`,
+      spike: `Spike x${item.spike.toFixed(1)}`,
+      context: `Raw ${item.raw_mentions ?? 0} · Weighted ${numberFormatter.format(
+        item.weighted_mentions ?? 0
+      )}`
     }));
 
   return {
@@ -94,6 +125,31 @@ export async function fetchTrendData(window = "24h"): Promise<TrendData> {
       : "",
     keywordSeries,
     trendCards
+  };
+}
+
+export async function fetchEmergingTopics(window = "24h"): Promise<EmergingTopicData> {
+  const hours = windowToHours[window] ?? 24;
+  const data = await apiGet<BackendEmergingTopicItem[]>(
+    `/analytics/emerging-topics?hours=${hours}&limit=20`
+  );
+
+  const latestByTopic = new Map<string, BackendEmergingTopicItem>();
+  data.forEach((item) => {
+    const existing = latestByTopic.get(item.topic);
+    if (!existing || item.timestamp > existing.timestamp) {
+      latestByTopic.set(item.topic, item);
+    }
+  });
+
+  return {
+    lastUpdated: data[0]?.timestamp
+      ? formatLocalDateTime(data[0].timestamp)
+      : "",
+    topics: Array.from(latestByTopic.values()).map((item) => ({
+      ...item,
+      first_seen: item.first_seen ? formatLocalDateTime(item.first_seen) : undefined
+    }))
   };
 }
 
@@ -174,6 +230,14 @@ export async function fetchEventData(eventId: string): Promise<EventData> {
     sentimentTrend: data.sentimentTrend.map((point) => ({
       ...point,
       time: formatLocalTime(point.time)
-    }))
+    })),
+    topPosts: (data.topPosts ?? []).map((post) => ({
+      ...post,
+      timestamp: formatLocalDateTime(post.timestamp)
+    })),
+    leadingSubreddits: (data.leadingSubreddits ?? []).map((item) => ({
+      ...item
+    })),
+    lifecycle: data.lifecycle
   };
 }

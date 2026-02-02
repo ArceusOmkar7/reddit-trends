@@ -6,6 +6,8 @@ from typing import Iterable
 from app.db.database import get_connection
 from app.models.schemas import EmergingTopicRecord, EmergingTopicSummary
 
+_EMERGING_DENYLIST = {"https", "says", "said", "new", "original", "today", "breaking"}
+
 
 def get_or_create_topic_id(phrase: str, first_seen: str) -> int:
     connection = get_connection()
@@ -104,22 +106,38 @@ def fetch_emerging_topics(hours: int = 24, limit: int = 20) -> list[EmergingTopi
     connection = get_connection()
     cursor = connection.cursor()
     since = (datetime.now(tz=timezone.utc) - timedelta(hours=hours)).isoformat()
-    cursor.execute(
-        """
-        SELECT ets.timestamp,
-               t.phrase AS topic,
-               ets.raw_mentions,
-               ets.unique_posts,
-               ets.velocity,
-               t.first_seen
-        FROM emerging_topic_snapshots ets
-        JOIN emerging_topics t ON t.id = ets.topic_id
-        WHERE ets.timestamp >= ?
-        ORDER BY ets.velocity DESC, ets.raw_mentions DESC
-        LIMIT ?
-        """,
-        (since, limit),
-    )
+        placeholders = ",".join(["?"] * len(_EMERGING_DENYLIST))
+        cursor.execute(
+                f"""
+                WITH latest AS (
+                    SELECT topic_id, MAX(timestamp) AS latest_ts
+                    FROM emerging_topic_snapshots
+                    WHERE timestamp >= ?
+                    GROUP BY topic_id
+                )
+                SELECT ets.timestamp,
+                             t.phrase AS topic,
+                             ets.raw_mentions,
+                             ets.unique_posts,
+                             ets.velocity,
+                             t.first_seen
+                FROM emerging_topic_snapshots ets
+                JOIN latest l ON l.topic_id = ets.topic_id AND l.latest_ts = ets.timestamp
+                JOIN emerging_topics t ON t.id = ets.topic_id
+                WHERE substr(ets.window_start, 15, 2) = '00'
+                    AND substr(ets.window_start, 18, 2) = '00'
+                    AND substr(ets.window_end, 15, 2) = '00'
+                    AND substr(ets.window_end, 18, 2) = '00'
+                    AND t.phrase NOT IN ({placeholders})
+                    AND (
+                        ets.raw_mentions >= 5
+                        OR ets.velocity >= 1.0
+                    )
+                ORDER BY ets.velocity DESC, ets.raw_mentions DESC
+                LIMIT ?
+                """,
+                (since, *_EMERGING_DENYLIST, limit),
+        )
     rows = cursor.fetchall()
     connection.close()
     return [

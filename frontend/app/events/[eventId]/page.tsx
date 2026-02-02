@@ -8,6 +8,7 @@ import Breadcrumbs from "@/components/layout/Breadcrumbs";
 import VolumeAreaChart from "@/components/charts/VolumeAreaChart";
 import SentimentLineChart from "@/components/charts/SentimentLineChart";
 import TrendCard from "@/components/ui/TrendCard";
+import Badge from "@/components/ui/Badge";
 import { useEventData } from "@/lib/hooks/useEventData";
 import { useRefreshContext } from "@/components/layout/RefreshContext";
 import { useDashboardData } from "@/lib/hooks/useDashboardData";
@@ -27,6 +28,13 @@ export default function EventPage() {
       setLastRefreshed(data.lastUpdated);
     }
   }, [data?.lastUpdated, setLastRefreshed]);
+
+  const phaseVariant = (phase?: string) => {
+    if (phase === "rise") return "green";
+    if (phase === "peak") return "orange";
+    if (phase === "decay") return "purple";
+    return "purple";
+  };
 
   return (
     <div className="space-y-8">
@@ -97,7 +105,69 @@ export default function EventPage() {
         </Card>
       </div>
 
-      <Card title="Event-specific trends" subtitle="Keywords driving the conversation">
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card title="Lifecycle" subtitle="Velocity-based phase detection">
+          {data?.lifecycle ? (
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge
+                  label={data.lifecycle.phase.toUpperCase()}
+                  variant={phaseVariant(data.lifecycle.phase)}
+                />
+                <Badge
+                  label={`Velocity ${data.lifecycle.weighted_velocity.toFixed(2)}`}
+                  variant="green"
+                />
+              </div>
+              <div className="text-sm text-ink-secondary">
+                Weighted now: {data.lifecycle.weighted_mentions.toFixed(2)} · Prev: {data.lifecycle.previous_weighted_mentions.toFixed(2)}
+              </div>
+              <div className="text-xs text-ink-secondary">
+                Window {data.lifecycle.window_start} → {data.lifecycle.window_end}
+              </div>
+            </div>
+          ) : (
+            <div className="text-sm text-ink-secondary">No lifecycle signals yet.</div>
+          )}
+        </Card>
+        <Card title="Leading subreddits" subtitle="Engagement-weighted leaders">
+          {data?.leadingSubreddits?.length ? (
+            <div className="space-y-3">
+              {data.leadingSubreddits.map((item, index) => (
+                <div key={`${item.subreddit}-${index}`} className="flex items-center justify-between">
+                  <div className="text-sm font-semibold text-ink-primary">{item.subreddit}</div>
+                  <div className="text-xs text-ink-secondary">
+                    Weight {item.weight.toFixed(2)} · Posts {item.posts}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-ink-secondary">No leading subreddits yet.</div>
+          )}
+        </Card>
+        <Card title="Top posts" subtitle="Highest engagement in this event">
+          {data?.topPosts?.length ? (
+            <div className="space-y-3">
+              {data.topPosts.map((post) => (
+                <div key={post.id} className="space-y-1">
+                  <div className="text-sm font-semibold text-ink-primary">{post.title}</div>
+                  <div className="text-xs text-ink-secondary">
+                    {post.subreddit} · {post.timestamp}
+                  </div>
+                  <div className="text-xs text-ink-secondary">
+                    Weight {post.weight.toFixed(2)} · Score {post.score} · Comments {post.comment_count}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-ink-secondary">No top posts yet.</div>
+          )}
+        </Card>
+      </div>
+
+      <Card title="Event-specific trends" subtitle="Anchor keywords driving the conversation">
         {data?.topicCards?.length ? (
           <div className="space-y-3">
             {data?.topicCards.map((topic, index) => (

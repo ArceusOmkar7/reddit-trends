@@ -23,7 +23,8 @@ _MIN_TERM_LENGTH = 4
 
 
 def _window_bounds() -> tuple[datetime, datetime, datetime, datetime]:
-    end = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=timezone.utc)
+    end = now.replace(minute=0, second=0, microsecond=0)
     start = end - timedelta(hours=WINDOW_HOURS)
     prev_start = start - timedelta(hours=WINDOW_HOURS)
     return start, end, prev_start, start
