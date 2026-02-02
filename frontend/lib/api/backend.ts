@@ -36,6 +36,13 @@ async function apiGet<T>(path: string): Promise<T> {
 
 const formatTime = (timestamp: string) => formatLocalTime(timestamp);
 
+const windowToHours: Record<string, number> = {
+  "1h": 1,
+  "6h": 6,
+  "24h": 24,
+  "7d": 168
+};
+
 export async function fetchDashboardData(): Promise<DashboardData> {
   const data = await apiGet<DashboardData>("/analytics/dashboard?hours=24");
   return {
@@ -52,19 +59,25 @@ export async function fetchDashboardData(): Promise<DashboardData> {
   };
 }
 
-export async function fetchTrendData(): Promise<TrendData> {
-  const data = await apiGet<BackendTrendItem[]>("/analytics/trends?hours=24");
+export async function fetchTrendData(window = "24h"): Promise<TrendData> {
+  const hours = windowToHours[window] ?? 24;
+  const data = await apiGet<BackendTrendItem[]>(
+    `/analytics/trends?hours=${hours}`
+  );
 
   const grouped = new Map<string, TimeSeriesPoint[]>();
   data.forEach((item) => {
     const series = grouped.get(item.keyword) ?? [];
-    series.push({ time: formatTime(item.timestamp), value: item.velocity });
+    const timeLabel = hours > 24
+      ? formatLocalDateTime(item.timestamp)
+      : formatTime(item.timestamp);
+    series.push({ time: timeLabel, value: item.velocity });
     grouped.set(item.keyword, series);
   });
 
   const keywordSeries = Array.from(grouped.entries()).map(([keyword, series]) => ({
     keyword,
-    data: series
+    data: series.sort((a, b) => a.time.localeCompare(b.time))
   }));
 
   const trendCards: TrendTopic[] = data

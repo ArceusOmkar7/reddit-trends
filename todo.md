@@ -72,4 +72,4 @@
 - [x] Verify polling interval and data freshness
 - [x] Validate trend spikes against known events
 - [ ] Check UI against design goals
-- [ ] Confirm ethical constraints and data handling
+- [x] Confirm ethical constraints and data handling
