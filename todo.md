@@ -20,10 +20,10 @@
 - [x] Add migrations/backfill logic at startup (no Alembic)
 
 ## 3. Backend – Testing
-- [ ] Unit tests for sentiment scoring
-- [ ] Unit tests for trend windowing and weighting
-- [ ] Unit tests for emerging topic detection
-- [ ] Regression tests for Phase 1 endpoints
+- [x] Unit tests for sentiment scoring
+- [x] Unit tests for trend windowing and weighting
+- [x] Unit tests for emerging topic detection
+- [x] Regression tests for Phase 1 endpoints
 
 ## 4. Frontend – UX Enhancements
 - [ ] Add trend direction indicators

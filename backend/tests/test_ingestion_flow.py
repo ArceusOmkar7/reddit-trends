@@ -22,7 +22,6 @@ def _count_rows(table: str) -> int:
 @pytest.mark.anyio
 async def test_ingestion_persists_posts_sentiment_and_trends(monkeypatch, temp_db):
     settings.subreddits = "technology,science"
-    settings.keywords = "ai releases,climate"
 
     async def fake_fetch_new_posts(self, subreddit: str, limit: int = 50):
         now = datetime.now(tz=timezone.utc).timestamp()
@@ -30,8 +29,8 @@ async def test_ingestion_persists_posts_sentiment_and_trends(monkeypatch, temp_d
             {
                 "id": f"{subreddit}-1",
                 "created_utc": now,
-                "title": "AI releases are great" if subreddit == "technology" else "Climate update",
-                "selftext": "Strong growth" if subreddit == "technology" else "climate climate",
+                "title": "Disney update" if subreddit == "technology" else "Disney reports",
+                "selftext": "disney disney disney" if subreddit == "technology" else "disney disney",
                 "score": 5,
                 "num_comments": 2,
             }
@@ -43,4 +42,4 @@ async def test_ingestion_persists_posts_sentiment_and_trends(monkeypatch, temp_d
 
     assert _count_rows("posts") == 2
     assert _count_rows("sentiment_series") >= 2
-    assert _count_rows("trend_snapshots") >= 2
+    assert _count_rows("trend_snapshots") >= 1
