@@ -57,31 +57,31 @@ def fetch_trend_snapshots(hours: int = 24) -> list[TrendSummary]:
     connection = get_connection()
     cursor = connection.cursor()
     since = _since(hours)
-        placeholders = ",".join(["?"] * len(_TREND_DENYLIST))
-        cursor.execute(
-                f"""
-                SELECT ts.timestamp, k.phrase AS keyword, ts.velocity, ts.spike,
-                             ts.raw_mentions, ts.weighted_mentions, ts.previous_mentions,
-                             ts.window_start, ts.window_end
-                FROM trend_snapshots ts
-                JOIN keywords k ON k.id = ts.keyword_id
-                WHERE COALESCE(ts.window_end, ts.timestamp) >= ?
-                    AND ts.raw_mentions IS NOT NULL
-                    AND ts.window_start IS NOT NULL
-                    AND substr(ts.window_start, 15, 2) = '00'
-                    AND substr(ts.window_start, 18, 2) = '00'
-                    AND substr(ts.window_end, 15, 2) = '00'
-                    AND substr(ts.window_end, 18, 2) = '00'
-                    AND k.phrase NOT IN ({placeholders})
-                    AND (
-                        ts.raw_mentions >= 5
-                        OR ts.weighted_mentions >= 5
-                        OR ts.velocity >= 0.5
-                    )
-                ORDER BY ts.spike DESC
-                """,
-                (since, *_TREND_DENYLIST),
-        )
+    placeholders = ",".join(["?"] * len(_TREND_DENYLIST))
+    cursor.execute(
+        f"""
+        SELECT ts.timestamp, k.phrase AS keyword, ts.velocity, ts.spike,
+               ts.raw_mentions, ts.weighted_mentions, ts.previous_mentions,
+               ts.window_start, ts.window_end
+        FROM trend_snapshots ts
+        JOIN keywords k ON k.id = ts.keyword_id
+        WHERE COALESCE(ts.window_end, ts.timestamp) >= ?
+          AND ts.raw_mentions IS NOT NULL
+          AND ts.window_start IS NOT NULL
+          AND substr(ts.window_start, 15, 2) = '00'
+          AND substr(ts.window_start, 18, 2) = '00'
+          AND substr(ts.window_end, 15, 2) = '00'
+          AND substr(ts.window_end, 18, 2) = '00'
+          AND k.phrase NOT IN ({placeholders})
+          AND (
+            ts.raw_mentions >= 5
+            OR ts.weighted_mentions >= 5
+            OR ts.velocity >= 0.5
+          )
+        ORDER BY ts.spike DESC
+        """,
+        (since, *_TREND_DENYLIST),
+    )
     rows = cursor.fetchall()
     connection.close()
     return [
