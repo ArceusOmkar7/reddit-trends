@@ -1,4 +1,5 @@
 import Card from "@/components/ui/Card";
+import IngestionControl from "@/components/ui/IngestionControl";
 
 export default function AboutPage() {
   return (
@@ -21,6 +22,9 @@ export default function AboutPage() {
             The platform ingests public posts and comments from selected subreddits at a
             five-minute interval. No user-level profiling is performed.
           </p>
+        </Card>
+        <Card title="Ingestion control" subtitle="Pause or resume polling">
+          <IngestionControl />
         </Card>
         <Card title="Update frequency" subtitle="Near real-time">
           <p className="text-sm text-ink-secondary">

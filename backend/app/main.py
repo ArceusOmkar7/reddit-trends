@@ -9,20 +9,19 @@ from app.api.router import api_router
 from app.core.config import settings
 from app.db.database import init_db
 from app.services.ingestion import poll_reddit
-from app.services.scheduler import run_interval
+from app.services.scheduler import run_interval, set_ingestion_enabled
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
 	logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 	init_db()
-	if settings.enable_ingestion:
-		async def task() -> None:
-			await poll_reddit()
+	set_ingestion_enabled(settings.enable_ingestion)
 
-		asyncio.create_task(run_interval(task, settings.poll_interval_seconds))
-		yield
-	else:
-		yield
+	async def task() -> None:
+		await poll_reddit()
+
+	asyncio.create_task(run_interval(task, settings.poll_interval_seconds))
+	yield
 
 
 app = FastAPI(title=settings.app_name, version=settings.app_version, lifespan=lifespan)

@@ -12,6 +12,7 @@ import {
   Info
 } from "lucide-react";
 import clsx from "clsx";
+import { usePollingContext } from "@/components/layout/PollingContext";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: Activity, match: "/dashboard" },
@@ -27,6 +28,7 @@ export default function Sidebar() {
   const pollIntervalSeconds = Number(
     process.env.NEXT_PUBLIC_POLL_INTERVAL_SECONDS ?? 300
   );
+  const { state } = usePollingContext();
   const [pollIntervalMs, setPollIntervalMs] = useState(
     Math.max(pollIntervalSeconds, 30) * 1000
   );
@@ -45,28 +47,16 @@ export default function Sidebar() {
   }, []);
 
   useEffect(() => {
-    const loadPolling = async () => {
-      try {
-        const response = await fetch("/api/polling", { cache: "no-store" });
-        if (!response.ok) {
-          return;
-        }
-        const payload = (await response.json()) as {
-          intervalSeconds?: number;
-          nextRun?: string | null;
-        };
-        if (payload.intervalSeconds) {
-          setPollIntervalMs(Math.max(payload.intervalSeconds, 30) * 1000);
-        }
-        if (payload.nextRun) {
-          setNextPollAt(new Date(payload.nextRun).getTime());
-        }
-      } catch (error) {
-        // Keep fallback schedule.
-      }
-    };
-    void loadPolling();
-  }, []);
+    if (!state) {
+      return;
+    }
+    setPollIntervalMs(Math.max(state.intervalSeconds ?? pollIntervalSeconds, 30) * 1000);
+    if (state.nextRun) {
+      setNextPollAt(new Date(state.nextRun).getTime());
+    } else if (state.enabled === false) {
+      setNextPollAt(null);
+    }
+  }, [state, pollIntervalSeconds]);
 
   useEffect(() => {
     if (now !== null && nextPollAt !== null && now >= nextPollAt) {
@@ -75,6 +65,9 @@ export default function Sidebar() {
   }, [now, nextPollAt, pollIntervalMs]);
 
   const countdown = useMemo(() => {
+    if (state?.enabled === false) {
+      return "Paused";
+    }
     if (now === null || nextPollAt === null) {
       return "--:--";
     }
@@ -93,7 +86,9 @@ export default function Sidebar() {
           hour: "2-digit",
           minute: "2-digit"
         }).format(new Date(nextPollAt))
-      : "--:--";
+      : state?.enabled === false
+        ? "—"
+        : "--:--";
 
   return (
     <aside className="sticky top-0 hidden h-screen w-64 flex-col border-r border-border-default bg-white px-5 py-6 lg:flex">
@@ -138,7 +133,9 @@ export default function Sidebar() {
         <div className="mt-3 text-sm text-ink-secondary">
           <span className="font-semibold text-ink-primary">Next poll</span> in {countdown}
         </div>
-        <p className="text-xs text-ink-muted">Scheduled at {nextPollLabel}</p>
+        <p className="text-xs text-ink-muted">
+          {state?.enabled === false ? "Polling paused" : `Scheduled at ${nextPollLabel}`}
+        </p>
       </div>
     </aside>
   );
