@@ -1,23 +1,23 @@
 # Phase 2 Project Flow Todo
 
 ## 1. Foundations
-- [ ] Confirm Phase 2 scope vs PRD goals
-- [ ] Reconfirm tech stack constraints (vaderSentiment, nltk, SQLite)
-- [ ] Define success metrics for signal quality
-- [ ] Review Phase 1 data schema and migration needs
+- [x] Confirm Phase 2 scope vs PRD goals
+- [x] Reconfirm tech stack constraints (vaderSentiment, nltk, SQLite)
+- [x] Define success metrics for signal quality
+- [x] Review Phase 1 data schema and migration needs
 
 ## 2. Backend – Intelligence Upgrade
-- [ ] Add vaderSentiment and nltk dependencies
-- [ ] Add NLP resource initialization (tokenizer + stopwords)
-- [ ] Implement post-level sentiment scoring with vaderSentiment
-- [ ] Store post-level sentiment in SQLite (additive columns/tables)
-- [ ] Update sentiment aggregation to use new scores
-- [ ] Build time-window trend detection (current vs previous window)
-- [ ] Add engagement-weighted trend metrics
-- [ ] Add emerging topic detection (unigrams/bigrams + filtering)
-- [ ] Add event intelligence metrics (top posts, leading subs, lifecycle)
-- [ ] Add/extend analytics endpoints (emerging topics, trend deltas)
-- [ ] Add migrations/backfill logic at startup (no Alembic)
+- [x] Add vaderSentiment and nltk dependencies
+- [x] Add NLP resource initialization (tokenizer + stopwords)
+- [x] Implement post-level sentiment scoring with vaderSentiment
+- [x] Store post-level sentiment in SQLite (additive columns/tables)
+- [x] Update sentiment aggregation to use new scores
+- [x] Build time-window trend detection (current vs previous window)
+- [x] Add engagement-weighted trend metrics
+- [x] Add emerging topic detection (unigrams/bigrams + filtering)
+- [x] Add event intelligence metrics (top posts, leading subs, lifecycle)
+- [x] Add/extend analytics endpoints (emerging topics, trend deltas)
+- [x] Add migrations/backfill logic at startup (no Alembic)
 
 ## 3. Backend – Testing
 - [ ] Unit tests for sentiment scoring
@@ -33,10 +33,10 @@
 - [ ] Improve event page explainability (top posts, leading subs)
 
 ## 5. Data Migration & Compatibility
-- [ ] Verify additive schema changes
+- [x] Verify additive schema changes
 - [ ] Ensure Phase 1 dashboards still render
-- [ ] Backfill post-level sentiment where possible
-- [ ] Recompute trends from stored posts
+- [x] Backfill post-level sentiment where possible
+- [x] Recompute trends from stored posts
 
 ## 6. QA & Validation
 - [ ] Compare Phase 1 vs Phase 2 outputs on known events

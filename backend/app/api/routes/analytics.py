@@ -6,8 +6,16 @@ from fastapi import APIRouter, Query
 
 from datetime import datetime, timezone
 
-from app.models.schemas import DashboardSummary, EventSummary, SentimentSummary, SubredditSummary, TrendSummary
+from app.models.schemas import (
+    DashboardSummary,
+    EmergingTopicSummary,
+    EventSummary,
+    SentimentSummary,
+    SubredditSummary,
+    TrendSummary,
+)
 from app.repositories.analytics import fetch_sentiment_series, fetch_trend_snapshots
+from app.repositories.emerging_topics import fetch_emerging_topics
 from app.repositories.dashboard import (
     fetch_active_events,
     fetch_active_subreddits,
@@ -19,6 +27,9 @@ from app.repositories.dashboard import (
 )
 from app.repositories.subreddit_analytics import (
     fetch_event_sentiment,
+    fetch_event_top_posts,
+    fetch_event_leading_subreddits,
+    fetch_event_lifecycle,
     fetch_event_topics,
     fetch_event_volume,
     fetch_subreddit_kpis,
@@ -40,6 +51,13 @@ def get_sentiment(
 @router.get("/trends", response_model=list[TrendSummary])
 def get_trends(hours: int = Query(24, ge=1, le=168)) -> list[TrendSummary]:
     return fetch_trend_snapshots(hours=hours)
+
+
+@router.get("/emerging-topics", response_model=list[EmergingTopicSummary])
+def get_emerging_topics(
+    hours: int = Query(24, ge=1, le=168), limit: int = Query(20, ge=1, le=100)
+) -> list[EmergingTopicSummary]:
+    return fetch_emerging_topics(hours=hours, limit=limit)
 
 
 @router.get("/dashboard", response_model=DashboardSummary)
@@ -116,7 +134,7 @@ def get_dashboard(hours: int = Query(24, ge=1, le=168)) -> DashboardSummary:
     formatted_topics = [
         {
             "keyword": item["keyword"],
-            "velocity": f"+{item['velocity']:.0f}%",
+            "velocity": f"{item['velocity'] * 100:+.0f}%",
             "context": topic_contexts.get(item["keyword"], ""),
             "spike": f"Spike x{item['spike']:.1f}",
         }
@@ -157,4 +175,7 @@ def get_event_summary(
         volumeTrend=fetch_event_volume(event_id, hours=hours),
         sentimentTrend=fetch_event_sentiment(event_id, hours=hours),
         topicCards=fetch_event_topics(event_id, hours=hours),
+        topPosts=fetch_event_top_posts(event_id, hours=hours),
+        leadingSubreddits=fetch_event_leading_subreddits(event_id, hours=hours),
+        lifecycle=fetch_event_lifecycle(event_id),
     )

@@ -46,6 +46,24 @@ class TrendSnapshotRecord(BaseModel):
     keyword_id: Optional[int] = None
     subreddit_id: Optional[int] = None
     event_id: Optional[int] = None
+    raw_mentions: Optional[int] = None
+    weighted_mentions: Optional[float] = None
+    previous_mentions: Optional[int] = None
+    window_start: Optional[str] = None
+    window_end: Optional[str] = None
+
+
+class EmergingTopicRecord(BaseModel):
+    id: str
+    timestamp: str
+    topic: str
+    raw_mentions: int
+    unique_posts: int
+    velocity: float
+    window_start: str
+    window_end: str
+    context: str
+    topic_id: Optional[int] = None
 
 
 class PostResponse(BaseModel):
@@ -69,6 +87,20 @@ class TrendSummary(BaseModel):
     keyword: str
     velocity: float
     spike: float
+    raw_mentions: Optional[int] = None
+    weighted_mentions: Optional[float] = None
+    previous_mentions: Optional[int] = None
+    window_start: Optional[str] = None
+    window_end: Optional[str] = None
+
+
+class EmergingTopicSummary(BaseModel):
+    timestamp: str
+    topic: str
+    raw_mentions: int
+    unique_posts: int
+    velocity: float
+    first_seen: Optional[str] = None
 
 
 class VolumePoint(BaseModel):
@@ -118,4 +150,7 @@ class EventSummary(BaseModel):
     volumeTrend: list[VolumePoint]
     sentimentTrend: list[SentimentPoint]
     topicCards: list[DashboardTopic]
+    topPosts: list[dict] = []
+    leadingSubreddits: list[dict] = []
+    lifecycle: dict | None = None
 

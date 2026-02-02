@@ -144,6 +144,33 @@ def init_db() -> None:
         """
     )
 
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS emerging_topics (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            phrase TEXT NOT NULL UNIQUE,
+            first_seen TEXT NOT NULL
+        );
+        """
+    )
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS emerging_topic_snapshots (
+            id TEXT PRIMARY KEY,
+            timestamp TEXT NOT NULL,
+            topic_id INTEGER NOT NULL,
+            raw_mentions INTEGER NOT NULL,
+            unique_posts INTEGER NOT NULL,
+            velocity REAL NOT NULL,
+            window_start TEXT NOT NULL,
+            window_end TEXT NOT NULL,
+            context TEXT NOT NULL,
+            FOREIGN KEY (topic_id) REFERENCES emerging_topics(id) ON DELETE CASCADE
+        );
+        """
+    )
+
     def ensure_column(table: str, column: str, definition: str) -> None:
         cursor.execute(f"PRAGMA table_info({table});")
         existing = {row[1] for row in cursor.fetchall()}
@@ -160,6 +187,11 @@ def init_db() -> None:
     ensure_column("sentiment_series", "event_id", "event_id INTEGER")
     ensure_column("trend_snapshots", "subreddit_id", "subreddit_id INTEGER")
     ensure_column("trend_snapshots", "event_id", "event_id INTEGER")
+    ensure_column("trend_snapshots", "raw_mentions", "raw_mentions INTEGER")
+    ensure_column("trend_snapshots", "weighted_mentions", "weighted_mentions REAL")
+    ensure_column("trend_snapshots", "previous_mentions", "previous_mentions INTEGER")
+    ensure_column("trend_snapshots", "window_start", "window_start TEXT")
+    ensure_column("trend_snapshots", "window_end", "window_end TEXT")
 
     cursor.execute(
         "CREATE INDEX IF NOT EXISTS idx_posts_subreddit_id_time ON posts(subreddit_id, timestamp);"
@@ -172,6 +204,44 @@ def init_db() -> None:
     )
     cursor.execute(
         "CREATE INDEX IF NOT EXISTS idx_trends_keyword_time ON trend_snapshots(keyword_id, timestamp);"
+    )
+    cursor.execute(
+        "CREATE INDEX IF NOT EXISTS idx_trends_window ON trend_snapshots(window_start, window_end);"
+    )
+    cursor.execute(
+        """
+        CREATE UNIQUE INDEX IF NOT EXISTS ux_trends_keyword_window
+        ON trend_snapshots(keyword_id, window_start, window_end);
+        """
+    )
+    cursor.execute(
+        "CREATE INDEX IF NOT EXISTS idx_emerging_topics_phrase ON emerging_topics(phrase);"
+    )
+    cursor.execute(
+        "CREATE INDEX IF NOT EXISTS idx_emerging_topic_snapshots_time ON emerging_topic_snapshots(timestamp);"
+    )
+
+    cursor.execute(
+        """
+        DELETE FROM emerging_topic_snapshots
+        WHERE window_start IS NULL OR window_end IS NULL
+        """
+    )
+    cursor.execute(
+        """
+        DELETE FROM emerging_topic_snapshots
+        WHERE rowid NOT IN (
+            SELECT MAX(rowid)
+            FROM emerging_topic_snapshots
+            GROUP BY topic_id, window_start, window_end
+        )
+        """
+    )
+    cursor.execute(
+        """
+        CREATE UNIQUE INDEX IF NOT EXISTS ux_emerging_topic_window
+        ON emerging_topic_snapshots(topic_id, window_start, window_end);
+        """
     )
     cursor.execute(
         "CREATE INDEX IF NOT EXISTS idx_post_keywords_keyword ON post_keywords(keyword_id);"
@@ -197,6 +267,13 @@ def init_db() -> None:
             """,
             [(keyword,) for keyword in keywords],
         )
+
+    cursor.execute(
+        """
+        DELETE FROM trend_snapshots
+        WHERE raw_mentions IS NULL OR window_start IS NULL
+        """
+    )
 
     connection.commit()
     connection.close()

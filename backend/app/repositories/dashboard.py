@@ -49,7 +49,9 @@ def _kpis_between(start: str, end: str) -> dict:
         """
         SELECT COUNT(DISTINCT keyword_id) AS spikes
         FROM trend_snapshots
-        WHERE timestamp >= ? AND timestamp < ? AND spike >= 1.5
+                WHERE timestamp >= ? AND timestamp < ?
+                    AND spike >= 1.0
+                    AND raw_mentions >= 10
         """,
         (start, end),
     )

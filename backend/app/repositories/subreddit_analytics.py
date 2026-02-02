@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
+import math
 
 from app.db.database import get_connection
 from app.services.sentiment import score_text
@@ -212,3 +213,176 @@ def fetch_event_topics(event_keyword: str, hours: int = 24) -> list[dict]:
         }
         for row in rows
     ]
+
+
+def fetch_event_top_posts(event_keyword: str, hours: int = 24, limit: int = 5) -> list[dict]:
+    connection = get_connection()
+    cursor = connection.cursor()
+    since = _since(hours)
+    event_name = event_keyword.lower()
+    cursor.execute(
+        """
+        SELECT p.id, p.timestamp, p.title, p.score, p.comment_count, r.name AS subreddit
+        FROM events e
+        JOIN event_keywords ek ON ek.event_id = e.id
+        JOIN post_keywords pk ON pk.keyword_id = ek.keyword_id
+        JOIN posts p ON p.id = pk.post_id
+        JOIN subreddits r ON r.id = p.subreddit_id
+        WHERE e.name = ? AND p.timestamp >= ?
+        GROUP BY p.id
+        """,
+        (event_name, since),
+    )
+    rows = cursor.fetchall()
+    connection.close()
+
+    scored = []
+    for row in rows:
+        score = int(row["score"] or 0)
+        comments = int(row["comment_count"] or 0)
+        weight = math.log(1 + score + comments)
+        scored.append(
+            {
+                "id": row["id"],
+                "timestamp": row["timestamp"],
+                "title": row["title"] or "",
+                "subreddit": f"r/{row['subreddit']}" if row["subreddit"] else "",
+                "score": score,
+                "comment_count": comments,
+                "weight": round(weight, 4),
+            }
+        )
+
+    scored.sort(key=lambda item: (item["weight"], item["score"]), reverse=True)
+    return scored[:limit]
+
+
+def fetch_event_leading_subreddits(event_keyword: str, hours: int = 24, limit: int = 5) -> list[dict]:
+    connection = get_connection()
+    cursor = connection.cursor()
+    since = _since(hours)
+    event_name = event_keyword.lower()
+    cursor.execute(
+        """
+        SELECT r.name AS subreddit,
+               p.score,
+               p.comment_count
+        FROM events e
+        JOIN event_keywords ek ON ek.event_id = e.id
+        JOIN post_keywords pk ON pk.keyword_id = ek.keyword_id
+        JOIN posts p ON p.id = pk.post_id
+        JOIN subreddits r ON r.id = p.subreddit_id
+        WHERE e.name = ? AND p.timestamp >= ?
+        """,
+        (event_name, since),
+    )
+    rows = cursor.fetchall()
+    connection.close()
+
+    totals: dict[str, dict] = {}
+    for row in rows:
+        subreddit = row["subreddit"] or ""
+        if not subreddit:
+            continue
+        score = int(row["score"] or 0)
+        comments = int(row["comment_count"] or 0)
+        weight = math.log(1 + score + comments)
+        bucket = totals.setdefault(subreddit, {"weight": 0.0, "posts": 0})
+        bucket["weight"] += weight
+        bucket["posts"] += 1
+
+    ranked = [
+        {
+            "subreddit": f"r/{name}",
+            "weight": round(values["weight"], 4),
+            "posts": values["posts"],
+        }
+        for name, values in totals.items()
+    ]
+    ranked.sort(key=lambda item: (item["weight"], item["posts"]), reverse=True)
+    return ranked[:limit]
+
+
+def fetch_event_lifecycle(event_keyword: str) -> dict:
+    now = datetime.now(tz=timezone.utc)
+    end = now
+    start = end - timedelta(hours=1)
+    prev_start = start - timedelta(hours=1)
+
+    def _weighted_mentions(start_ts: str, end_ts: str) -> float:
+        connection = get_connection()
+        cursor = connection.cursor()
+        event_name = event_keyword.lower()
+        cursor.execute(
+            """
+            SELECT p.score, p.comment_count
+            FROM events e
+            JOIN event_keywords ek ON ek.event_id = e.id
+            JOIN post_keywords pk ON pk.keyword_id = ek.keyword_id
+            JOIN posts p ON p.id = pk.post_id
+            WHERE e.name = ? AND p.timestamp >= ? AND p.timestamp < ?
+            """,
+            (event_name, start_ts, end_ts),
+        )
+        rows = cursor.fetchall()
+        connection.close()
+        total = 0.0
+        for row in rows:
+            score = int(row["score"] or 0)
+            comments = int(row["comment_count"] or 0)
+            total += math.log(1 + score + comments)
+        return total
+
+    current_weighted = _weighted_mentions(start.isoformat(), end.isoformat())
+    prev_weighted = _weighted_mentions(prev_start.isoformat(), start.isoformat())
+    weighted_velocity = (current_weighted - prev_weighted) / max(prev_weighted, 1.0)
+
+    connection = get_connection()
+    cursor = connection.cursor()
+    event_name = event_keyword.lower()
+    cursor.execute(
+        """
+        SELECT substr(p.timestamp, 1, 13) AS hour_bucket,
+               p.score,
+               p.comment_count
+        FROM events e
+        JOIN event_keywords ek ON ek.event_id = e.id
+        JOIN post_keywords pk ON pk.keyword_id = ek.keyword_id
+        JOIN posts p ON p.id = pk.post_id
+        WHERE e.name = ?
+        """,
+        (event_name,),
+    )
+    rows = cursor.fetchall()
+    connection.close()
+
+    hourly: dict[str, float] = {}
+    for row in rows:
+        bucket = row["hour_bucket"]
+        score = int(row["score"] or 0)
+        comments = int(row["comment_count"] or 0)
+        hourly[bucket] = hourly.get(bucket, 0.0) + math.log(1 + score + comments)
+
+    sorted_values = sorted(hourly.values())
+    percentile_75 = 0.0
+    if sorted_values:
+        index = int(0.75 * (len(sorted_values) - 1))
+        percentile_75 = sorted_values[index]
+
+    phase = "stable"
+    if weighted_velocity >= 0.5:
+        phase = "rise"
+    elif abs(weighted_velocity) < 0.2 and current_weighted >= percentile_75:
+        phase = "peak"
+    elif weighted_velocity <= -0.3:
+        phase = "decay"
+
+    return {
+        "phase": phase,
+        "weighted_velocity": round(float(weighted_velocity), 4),
+        "weighted_mentions": round(float(current_weighted), 4),
+        "previous_weighted_mentions": round(float(prev_weighted), 4),
+        "window_start": start.isoformat(),
+        "window_end": end.isoformat(),
+        "percentile_75": round(float(percentile_75), 4),
+    }

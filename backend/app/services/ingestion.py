@@ -10,8 +10,9 @@ from app.models.schemas import PostIn
 from app.repositories.posts import store_posts, update_post_sentiment
 from app.repositories.sentiment import store_sentiment
 from app.repositories.trends import store_trends
+from app.repositories.emerging_topics import store_emerging_topic_snapshots
 from app.services.sentiment import aggregate_sentiment, score_posts
-from app.services.trends import detect_trends
+from app.services.trends import detect_emerging_topics, detect_trends
 
 
 def parse_scope(value: str) -> list[str]:
@@ -61,6 +62,10 @@ async def poll_reddit() -> list[PostIn]:
         trend_records = detect_trends(posts)
         if trend_records:
             store_trends(trend_records)
+
+        emerging_records = detect_emerging_topics()
+        if emerging_records:
+            store_emerging_topic_snapshots(emerging_records)
 
     if per_subreddit_counts:
         summary = ", ".join(

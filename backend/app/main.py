@@ -14,6 +14,9 @@ from app.db.database import init_db
 from app.services.ingestion import poll_reddit
 from app.services.nlp import ensure_nltk_resources
 from app.services.sentiment import backfill_post_sentiment
+from app.services.trends import fetch_posts_since, detect_trends, detect_emerging_topics
+from app.repositories.trends import store_trends
+from app.repositories.emerging_topics import store_emerging_topic_snapshots
 from app.services.scheduler import run_interval, set_ingestion_enabled
 
 @asynccontextmanager
@@ -47,6 +50,17 @@ async def lifespan(_: FastAPI):
 		updated = backfill_post_sentiment()
 		if updated == 0:
 			break
+	try:
+		recent_posts = fetch_posts_since(2)
+		if recent_posts:
+			trend_records = detect_trends(recent_posts)
+			if trend_records:
+				store_trends(trend_records)
+		emerging_records = detect_emerging_topics()
+		if emerging_records:
+			store_emerging_topic_snapshots(emerging_records)
+	except Exception:
+		logging.getLogger("reddit_trends.startup").exception("Startup recompute failed")
 	set_ingestion_enabled(settings.enable_ingestion)
 
 	async def task() -> None:

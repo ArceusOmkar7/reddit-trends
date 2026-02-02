@@ -57,10 +57,19 @@ def fetch_trend_snapshots(hours: int = 24) -> list[TrendSummary]:
     since = _since(hours)
     cursor.execute(
         """
-        SELECT ts.timestamp, k.phrase AS keyword, ts.velocity, ts.spike
+                SELECT ts.timestamp, k.phrase AS keyword, ts.velocity, ts.spike,
+                             ts.raw_mentions, ts.weighted_mentions, ts.previous_mentions,
+                             ts.window_start, ts.window_end
         FROM trend_snapshots ts
         JOIN keywords k ON k.id = ts.keyword_id
-        WHERE ts.timestamp >= ?
+                WHERE ts.timestamp >= ?
+                    AND ts.raw_mentions IS NOT NULL
+                    AND ts.window_start IS NOT NULL
+                    AND (
+                        ts.raw_mentions >= 5
+                        OR ts.weighted_mentions >= 5
+                        OR ts.velocity >= 0.5
+                    )
         ORDER BY ts.spike DESC
         """,
         (since,),
@@ -73,6 +82,11 @@ def fetch_trend_snapshots(hours: int = 24) -> list[TrendSummary]:
             keyword=row["keyword"],
             velocity=float(row["velocity"]),
             spike=float(row["spike"]),
+            raw_mentions=row["raw_mentions"],
+            weighted_mentions=row["weighted_mentions"],
+            previous_mentions=row["previous_mentions"],
+            window_start=row["window_start"],
+            window_end=row["window_end"],
         )
         for row in rows
     ]
