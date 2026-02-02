@@ -26,9 +26,11 @@ async def poll_reddit() -> list[PostIn]:
     posts: list[PostIn] = []
     subreddit_scope = parse_scope(settings.subreddits)
     logger.info("Starting ingestion cycle | subreddits=%s", ", ".join(subreddit_scope))
+    per_subreddit_counts: dict[str, int] = {}
 
     for subreddit in subreddit_scope:
         items = await client.fetch_new_posts(subreddit)
+        per_subreddit_counts[subreddit] = len(items)
         for item in items:
             posts.append(
                 PostIn(
@@ -56,9 +58,12 @@ async def poll_reddit() -> list[PostIn]:
         if trend_records:
             store_trends(trend_records)
 
-    logger.info(
-        "Ingestion cycle complete",
-        extra={"fetched": len(posts), "inserted": inserted},
-    )
+    if per_subreddit_counts:
+        summary = ", ".join(
+            f"{name}={count}" for name, count in per_subreddit_counts.items()
+        )
+        logger.info("Subreddit fetch summary | %s", summary)
+
+    logger.info("Ingestion cycle complete | fetched=%s inserted=%s", len(posts), inserted)
 
     return posts

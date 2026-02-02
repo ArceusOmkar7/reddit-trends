@@ -2,8 +2,12 @@ from __future__ import annotations
 
 from typing import Iterable, Optional
 
+import logging
+
 from app.db.database import get_connection
 from app.models.schemas import TrendSnapshotRecord
+
+logger = logging.getLogger("reddit_trends.trends_store")
 
 
 def store_trends(records: Iterable[TrendSnapshotRecord]) -> int:
@@ -56,6 +60,7 @@ def store_trends(records: Iterable[TrendSnapshotRecord]) -> int:
     connection.commit()
     inserted = cursor.rowcount
     connection.close()
+    logger.info("Stored trends | records=%s", len(payload))
     return inserted
 
 

@@ -92,7 +92,7 @@ class DashboardTopic(BaseModel):
     keyword: str
     velocity: str
     context: str
-    sentiment: str
+    sentiment: Optional[str] = None
     spike: str
 
 

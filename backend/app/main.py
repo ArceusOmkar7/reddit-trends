@@ -1,5 +1,8 @@
 import asyncio
 import logging
+import sys
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -13,7 +16,29 @@ from app.services.scheduler import run_interval, set_ingestion_enabled
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-	logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+	log_format = "%(asctime)s %(levelname)s [%(name)s] %(message)s"
+	root_logger = logging.getLogger()
+	root_logger.setLevel(logging.INFO)
+
+	if not any(isinstance(handler, RotatingFileHandler) for handler in root_logger.handlers):
+		log_path = Path("/app/logs")
+		log_path.mkdir(parents=True, exist_ok=True)
+		file_handler = RotatingFileHandler(
+			log_path / "app.log",
+			maxBytes=5 * 1024 * 1024,
+			backupCount=5,
+		)
+		file_handler.setFormatter(logging.Formatter(log_format))
+		root_logger.addHandler(file_handler)
+
+	if not any(
+		isinstance(handler, logging.StreamHandler)
+		and getattr(handler, "stream", None) is sys.stdout
+		for handler in root_logger.handlers
+	):
+		stream_handler = logging.StreamHandler(sys.stdout)
+		stream_handler.setFormatter(logging.Formatter(log_format))
+		root_logger.addHandler(stream_handler)
 	init_db()
 	set_ingestion_enabled(settings.enable_ingestion)
 

@@ -85,15 +85,13 @@ export async function fetchTrendData(window = "24h"): Promise<TrendData> {
     .map((item) => ({
       keyword: item.keyword,
       velocity: `+${Math.round(item.velocity)}%`,
-      context: "Global",
-      sentiment: "Neutral",
       spike: `Spike x${item.spike.toFixed(1)}`
     }));
 
   return {
     lastUpdated: data[0]?.timestamp
       ? formatLocalDateTime(data[0].timestamp)
-      : "Just now",
+      : "",
     keywordSeries,
     trendCards
   };
@@ -138,7 +136,7 @@ export async function fetchSentimentData(): Promise<SentimentData> {
   return {
     lastUpdated: latestTimestamp
       ? formatLocalDateTime(latestTimestamp)
-      : "Just now",
+      : "",
     distribution: [
       { label: "Positive", value: Math.round((totals.positive / sum) * 100) },
       { label: "Neutral", value: Math.round((totals.neutral / sum) * 100) },

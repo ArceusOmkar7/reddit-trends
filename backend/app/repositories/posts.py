@@ -2,9 +2,13 @@ from __future__ import annotations
 
 from typing import Iterable
 
+import logging
+
 from app.db.database import get_connection
 from app.models.schemas import PostIn
 from app.repositories.subreddits import get_or_create_subreddit_id
+
+logger = logging.getLogger("reddit_trends.posts")
 
 
 def store_posts(posts: Iterable[PostIn]) -> int:
@@ -47,4 +51,5 @@ def store_posts(posts: Iterable[PostIn]) -> int:
     connection.commit()
     inserted = cursor.rowcount
     connection.close()
+    logger.info("Stored posts | received=%s inserted=%s", len(enriched), inserted)
     return inserted

@@ -10,31 +10,37 @@ def _since(hours: int) -> str:
     return (datetime.now(tz=timezone.utc) - timedelta(hours=hours)).isoformat()
 
 
-def fetch_kpis(hours: int = 24) -> dict:
+def _kpis_between(start: str, end: str) -> dict:
     connection = get_connection()
     cursor = connection.cursor()
-    since = _since(hours)
 
     cursor.execute(
         """
         SELECT COUNT(*) AS count
         FROM posts
-        WHERE timestamp >= ?
+        WHERE timestamp >= ? AND timestamp < ?
         """,
-        (since,),
+        (start, end),
     )
     mentions = int(cursor.fetchone()["count"])
 
-    cursor.execute("SELECT COUNT(*) AS count FROM subreddits;")
-    subreddits = int(cursor.fetchone()["count"])
+    cursor.execute(
+        """
+        SELECT COUNT(DISTINCT subreddit_id) AS count
+        FROM posts
+        WHERE timestamp >= ? AND timestamp < ?
+        """,
+        (start, end),
+    )
+    active_subreddits = int(cursor.fetchone()["count"])
 
     cursor.execute(
         """
         SELECT AVG(sentiment) AS avg_sentiment
         FROM sentiment_series
-        WHERE timestamp >= ?
+        WHERE timestamp >= ? AND timestamp < ?
         """,
-        (since,),
+        (start, end),
     )
     avg_sentiment = cursor.fetchone()["avg_sentiment"]
     avg_sentiment = float(avg_sentiment) if avg_sentiment is not None else 0.0
@@ -43,19 +49,34 @@ def fetch_kpis(hours: int = 24) -> dict:
         """
         SELECT COUNT(DISTINCT keyword_id) AS spikes
         FROM trend_snapshots
-        WHERE timestamp >= ? AND spike >= 1.5
+        WHERE timestamp >= ? AND timestamp < ? AND spike >= 1.5
         """,
-        (since,),
+        (start, end),
     )
     spikes = int(cursor.fetchone()["spikes"])
 
     connection.close()
     return {
         "mentions": mentions,
-        "active_subreddits": subreddits,
+        "active_subreddits": active_subreddits,
         "avg_sentiment": round(avg_sentiment, 4),
         "spikes": spikes,
     }
+
+
+def fetch_kpis(hours: int = 24) -> dict:
+    end = datetime.now(tz=timezone.utc).isoformat()
+    start = (datetime.now(tz=timezone.utc) - timedelta(hours=hours)).isoformat()
+    return _kpis_between(start, end)
+
+
+def fetch_kpis_window(hours: int = 24) -> tuple[dict, dict]:
+    end = datetime.now(tz=timezone.utc)
+    start = end - timedelta(hours=hours)
+    prev_start = start - timedelta(hours=hours)
+    current = _kpis_between(start.isoformat(), end.isoformat())
+    previous = _kpis_between(prev_start.isoformat(), start.isoformat())
+    return current, previous
 
 
 def fetch_active_subreddits(limit: int | None = 8) -> list[str]:

@@ -2,8 +2,12 @@ from __future__ import annotations
 
 from typing import Iterable
 
+import logging
+
 from app.db.database import get_connection
 from app.models.schemas import SentimentRecord
+
+logger = logging.getLogger("reddit_trends.sentiment_store")
 
 
 def store_sentiment(records: Iterable[SentimentRecord]) -> int:
@@ -50,4 +54,5 @@ def store_sentiment(records: Iterable[SentimentRecord]) -> int:
     connection.commit()
     inserted = cursor.rowcount
     connection.close()
+    logger.info("Stored sentiment | records=%s", len(payload))
     return inserted

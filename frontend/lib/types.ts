@@ -8,9 +8,9 @@ export interface KpiTile {
 export interface TrendTopic {
   keyword: string;
   velocity: string;
-  context: string;
-  sentiment: string;
-  spike: string;
+  context?: string;
+  sentiment?: string;
+  spike?: string;
 }
 
 export interface TimeSeriesPoint {

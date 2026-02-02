@@ -11,7 +11,7 @@ from app.repositories.analytics import fetch_sentiment_series, fetch_trend_snaps
 from app.repositories.dashboard import (
     fetch_active_events,
     fetch_active_subreddits,
-    fetch_kpis,
+    fetch_kpis_window,
     fetch_sentiment_timeline,
     fetch_trending_topic_contexts,
     fetch_trending_topics,
@@ -44,36 +44,72 @@ def get_trends(hours: int = Query(24, ge=1, le=168)) -> list[TrendSummary]:
 
 @router.get("/dashboard", response_model=DashboardSummary)
 def get_dashboard(hours: int = Query(24, ge=1, le=168)) -> DashboardSummary:
-    kpis = fetch_kpis(hours=hours)
-    sentiment_trend = fetch_sentiment_timeline(hours=hours)
+    kpis, previous = fetch_kpis_window(hours=hours)
+    sentiment_timeline = fetch_sentiment_timeline(hours=hours)
     volume_trend = fetch_volume_series(hours=hours)
     trending_topics = fetch_trending_topics(hours=hours, limit=5)
     topic_contexts = fetch_trending_topic_contexts([item["keyword"] for item in trending_topics])
+
+    def percent_delta(current: int, prev: int) -> tuple[str, str]:
+        if prev == 0:
+            if current == 0:
+                return "Stable", "neutral"
+            return "+100%", "up"
+        delta = ((current - prev) / prev) * 100
+        trend = "up" if delta > 0 else "down" if delta < 0 else "neutral"
+        return f"{delta:+.0f}%", trend
+
+    def absolute_delta(current: int, prev: int) -> tuple[str, str]:
+        delta = current - prev
+        trend = "up" if delta > 0 else "down" if delta < 0 else "neutral"
+        if delta == 0:
+            return "Stable", "neutral"
+        return f"{delta:+d}", trend
+
+    def sentiment_delta(current: float, prev: float) -> tuple[str, str]:
+        delta = current - prev
+        trend = "up" if delta > 0 else "down" if delta < 0 else "neutral"
+        if delta == 0:
+            return "Stable", "neutral"
+        return f"{delta:+.2f}", trend
+
+    mentions_delta, mentions_trend = percent_delta(
+        kpis["mentions"], previous["mentions"]
+    )
+    subs_delta, subs_trend = absolute_delta(
+        kpis["active_subreddits"], previous["active_subreddits"]
+    )
+    sentiment_delta_value, sentiment_trend = sentiment_delta(
+        kpis["avg_sentiment"], previous["avg_sentiment"]
+    )
+    spikes_delta, spikes_trend = absolute_delta(
+        kpis["spikes"], previous["spikes"]
+    )
 
     dashboard_kpis = [
         {
             "label": "Sentiment",
             "value": f"{kpis['avg_sentiment']:+.2f}",
-            "delta": "Stable",
-            "trend": "neutral",
+            "delta": sentiment_delta_value,
+            "trend": sentiment_trend,
         },
         {
             "label": "Mentions",
             "value": f"{kpis['mentions']}",
-            "delta": "+0%",
-            "trend": "neutral",
+            "delta": mentions_delta,
+            "trend": mentions_trend,
         },
         {
             "label": "Active subs",
             "value": f"{kpis['active_subreddits']}",
-            "delta": "Stable",
-            "trend": "neutral",
+            "delta": subs_delta,
+            "trend": subs_trend,
         },
         {
             "label": "Spikes",
             "value": f"{kpis['spikes']}",
-            "delta": "+0",
-            "trend": "neutral",
+            "delta": spikes_delta,
+            "trend": spikes_trend,
         },
     ]
 
@@ -82,7 +118,6 @@ def get_dashboard(hours: int = Query(24, ge=1, le=168)) -> DashboardSummary:
             "keyword": item["keyword"],
             "velocity": f"+{item['velocity']:.0f}%",
             "context": topic_contexts.get(item["keyword"], ""),
-            "sentiment": "Neutral",
             "spike": f"Spike x{item['spike']:.1f}",
         }
         for item in trending_topics
@@ -93,7 +128,7 @@ def get_dashboard(hours: int = Query(24, ge=1, le=168)) -> DashboardSummary:
     return DashboardSummary(
         lastUpdated=datetime.now(tz=timezone.utc).isoformat(),
         kpis=dashboard_kpis,
-        sentimentTrend=sentiment_trend,
+        sentimentTrend=sentiment_timeline,
         volumeTrend=volume_trend,
         trendingTopics=formatted_topics,
         activeSubreddits=active_subreddits,

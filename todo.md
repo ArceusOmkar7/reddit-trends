@@ -1,7 +1,7 @@
 # Project Creation Flow Todo
 
 ## 1. Foundations
-- [ ] Confirm scope vs PRD goals (Phase 1 only)
+- [x] Confirm scope vs PRD goals (Phase 1 only)
 - [x] Review tech constraints and lock stack
 - [x] Define data scope: subreddits, events, keywords, polling interval
 - [x] Draft API response schemas (raw vs aggregated)
@@ -71,5 +71,5 @@
 - [x] Run frontend smoke test
 - [x] Verify polling interval and data freshness
 - [x] Validate trend spikes against known events
-- [ ] Check UI against design goals
+- [x] Check UI against design goals
 - [x] Confirm ethical constraints and data handling
