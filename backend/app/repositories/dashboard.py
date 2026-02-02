@@ -58,42 +58,60 @@ def fetch_kpis(hours: int = 24) -> dict:
     }
 
 
-def fetch_active_subreddits(limit: int = 8) -> list[str]:
+def fetch_active_subreddits(limit: int | None = 8) -> list[str]:
     connection = get_connection()
     cursor = connection.cursor()
-    cursor.execute(
-        """
-        SELECT name
-        FROM subreddits
-        ORDER BY name ASC
-        LIMIT ?
-        """,
-        (limit,),
-    )
+    if limit is None:
+        cursor.execute(
+            """
+            SELECT name
+            FROM subreddits
+            ORDER BY name ASC
+            """,
+        )
+    else:
+        cursor.execute(
+            """
+            SELECT name
+            FROM subreddits
+            ORDER BY name ASC
+            LIMIT ?
+            """,
+            (limit,),
+        )
     rows = cursor.fetchall()
     connection.close()
     return [f"r/{row['name']}" for row in rows]
 
 
-def fetch_active_events(limit: int = 6) -> list[str]:
+def fetch_active_events(limit: int | None = 6) -> list[str]:
     connection = get_connection()
     cursor = connection.cursor()
-    cursor.execute(
-        """
-        SELECT name
-        FROM events
-        ORDER BY name ASC
-        LIMIT ?
-        """,
-        (limit,),
-    )
+    if limit is None:
+        cursor.execute(
+            """
+            SELECT name
+            FROM events
+            ORDER BY name ASC
+            """,
+        )
+    else:
+        cursor.execute(
+            """
+            SELECT name
+            FROM events
+            ORDER BY name ASC
+            LIMIT ?
+            """,
+            (limit,),
+        )
     rows = cursor.fetchall()
     connection.close()
     if rows:
         return [row["name"] for row in rows]
 
     keywords = [item.strip().lower() for item in settings.keywords.split(",") if item.strip()]
-    return keywords[:limit]
+    return keywords if limit is None else keywords[:limit]
 
 
 def fetch_volume_series(hours: int = 24) -> list[dict]:

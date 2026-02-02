@@ -56,7 +56,7 @@
 - [x] Wire frontend to backend API endpoints
 - [x] Validate data schemas match UI expectations
 - [x] Add error and empty-state UI
-- [ ] Add refresh timestamp and status in header
+- [x] Add refresh timestamp and status in header
 
 ## 6. Deployment & Ops
 - [x] Finalize Dockerfiles for backend and frontend
@@ -69,7 +69,7 @@
 - [x] Run backend smoke test
 - [x] Run end-to-end smoke test
 - [x] Run frontend smoke test
-- [ ] Verify polling interval and data freshness
-- [ ] Validate trend spikes against known events
+- [x] Verify polling interval and data freshness
+- [x] Validate trend spikes against known events
 - [ ] Check UI against design goals
 - [ ] Confirm ethical constraints and data handling

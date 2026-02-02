@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import SectionHeader from "@/components/ui/SectionHeader";
 import StatTile from "@/components/ui/StatTile";
 import Card from "@/components/ui/Card";
@@ -13,6 +13,34 @@ import { useRefreshContext } from "@/components/layout/RefreshContext";
 export default function DashboardPage() {
   const { data, loading, error, refetch } = useDashboardData();
   const { setLastRefreshed } = useRefreshContext();
+  const [showAll, setShowAll] = useState(false);
+  const [fullSubreddits, setFullSubreddits] = useState<string[]>([]);
+  const [fullEvents, setFullEvents] = useState<string[]>([]);
+  const [listsLoading, setListsLoading] = useState(false);
+
+  useEffect(() => {
+    const loadLists = async () => {
+      if (!showAll) {
+        return;
+      }
+      setListsLoading(true);
+      try {
+        const response = await fetch("/api/active-lists", { cache: "no-store" });
+        if (!response.ok) {
+          return;
+        }
+        const payload = (await response.json()) as {
+          subreddits: string[];
+          events: string[];
+        };
+        setFullSubreddits(payload.subreddits);
+        setFullEvents(payload.events);
+      } finally {
+        setListsLoading(false);
+      }
+    };
+    void loadLists();
+  }, [showAll]);
 
   useEffect(() => {
     if (data?.lastUpdated) {
@@ -81,20 +109,40 @@ export default function DashboardPage() {
           subtitle="Subreddits and events currently monitored"
         >
           <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-muted">
+                {showAll ? "Showing all" : "Showing highlights"}
+              </p>
+              <button
+                className="text-xs font-semibold text-brand-purple"
+                type="button"
+                onClick={() => setShowAll((prev) => !prev)}
+              >
+                {showAll ? "Show less" : "Show all"}
+              </button>
+            </div>
             <div className="rounded-2xl bg-surface-purpleTint p-4">
               <p className="metric-label">Subreddits</p>
               <p className="mt-2 text-lg font-semibold text-ink-primary">
-                {data?.activeSubreddits?.length
-                  ? data.activeSubreddits.join(", ")
-                  : "No active subreddits yet."}
+                {listsLoading
+                  ? "Loading..."
+                  : showAll
+                    ? fullSubreddits.join(", ") || "No active subreddits yet."
+                    : data?.activeSubreddits?.length
+                      ? data.activeSubreddits.join(", ")
+                      : "No active subreddits yet."}
               </p>
             </div>
             <div className="rounded-2xl bg-surface-peachTint p-4">
               <p className="metric-label">Events</p>
               <p className="mt-2 text-lg font-semibold text-ink-primary">
-                {data?.activeEvents?.length
-                  ? data.activeEvents.join(", ")
-                  : "No active events yet."}
+                {listsLoading
+                  ? "Loading..."
+                  : showAll
+                    ? fullEvents.join(", ") || "No active events yet."
+                    : data?.activeEvents?.length
+                      ? data.activeEvents.join(", ")
+                      : "No active events yet."}
               </p>
             </div>
           </div>
