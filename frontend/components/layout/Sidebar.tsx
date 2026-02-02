@@ -27,7 +27,9 @@ export default function Sidebar() {
   const pollIntervalSeconds = Number(
     process.env.NEXT_PUBLIC_POLL_INTERVAL_SECONDS ?? 300
   );
-  const pollIntervalMs = Math.max(pollIntervalSeconds, 30) * 1000;
+  const [pollIntervalMs, setPollIntervalMs] = useState(
+    Math.max(pollIntervalSeconds, 30) * 1000
+  );
   const [nextPollAt, setNextPollAt] = useState<number | null>(null);
   const [now, setNow] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -40,6 +42,30 @@ export default function Sidebar() {
     const tick = () => setNow(Date.now());
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const loadPolling = async () => {
+      try {
+        const response = await fetch("/api/polling", { cache: "no-store" });
+        if (!response.ok) {
+          return;
+        }
+        const payload = (await response.json()) as {
+          intervalSeconds?: number;
+          nextRun?: string | null;
+        };
+        if (payload.intervalSeconds) {
+          setPollIntervalMs(Math.max(payload.intervalSeconds, 30) * 1000);
+        }
+        if (payload.nextRun) {
+          setNextPollAt(new Date(payload.nextRun).getTime());
+        }
+      } catch (error) {
+        // Keep fallback schedule.
+      }
+    };
+    void loadPolling();
   }, []);
 
   useEffect(() => {

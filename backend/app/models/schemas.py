@@ -19,6 +19,13 @@ class HealthResponse(BaseModel):
     status: str = Field(json_schema_extra={"example": "ok"})
 
 
+class PollingState(BaseModel):
+    enabled: bool
+    intervalSeconds: int
+    lastRun: Optional[str] = None
+    nextRun: Optional[str] = None
+
+
 class SentimentRecord(BaseModel):
     id: str
     timestamp: str
