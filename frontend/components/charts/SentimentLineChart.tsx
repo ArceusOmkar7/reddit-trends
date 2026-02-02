@@ -6,7 +6,9 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  CartesianGrid,
+  ReferenceLine
 } from "recharts";
 import { chartTheme } from "@/lib/theme";
 import ChartTooltip from "@/components/charts/ChartTooltip";
@@ -42,13 +44,29 @@ export default function SentimentLineChart({
       aria-label="Sentiment line chart"
     >
       <ResponsiveContainer width="100%" height={256} minWidth={0}>
-        <LineChart data={data} margin={{ top: 10, right: 20, bottom: 0, left: -10 }}>
-          <XAxis dataKey="time" tick={{ fill: chartTheme.axis }} />
-          <YAxis tick={{ fill: chartTheme.axis }} domain={[-1, 1]} />
+        <LineChart data={data} margin={{ top: 10, right: 16, bottom: 0, left: -4 }}>
+          <CartesianGrid strokeDasharray="4 6" stroke={chartTheme.grid} />
+          <XAxis
+            dataKey="time"
+            tick={{ fill: chartTheme.axis }}
+            axisLine={false}
+            tickLine={false}
+            minTickGap={24}
+            interval="preserveStartEnd"
+          />
+          <YAxis
+            tick={{ fill: chartTheme.axis }}
+            domain={[-1, 1]}
+            axisLine={false}
+            tickLine={false}
+            tickFormatter={(value) => value.toFixed(2)}
+          />
+          <ReferenceLine y={0} stroke={chartTheme.axis} strokeDasharray="3 6" />
           <Tooltip content={<ChartTooltip />} />
           <Line
             type="monotone"
             dataKey="value"
+            name="Sentiment"
             stroke={chartTheme.primary}
             strokeWidth={3}
             dot={false}

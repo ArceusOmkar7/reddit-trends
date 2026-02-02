@@ -6,7 +6,9 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  CartesianGrid,
+  Legend
 } from "recharts";
 import { chartTheme } from "@/lib/theme";
 import ChartTooltip from "@/components/charts/ChartTooltip";
@@ -44,15 +46,35 @@ export default function KeywordLineChart({
   return (
     <div className="h-64 w-full min-w-0">
       <ResponsiveContainer width="100%" height={256} minWidth={0}>
-        <LineChart margin={{ top: 10, right: 20, bottom: 0, left: -10 }}>
-          <XAxis dataKey="time" tick={{ fill: chartTheme.axis }} />
-          <YAxis tick={{ fill: chartTheme.axis }} />
+        <LineChart margin={{ top: 10, right: 16, bottom: 0, left: -4 }}>
+          <CartesianGrid strokeDasharray="4 6" stroke={chartTheme.grid} />
+          <XAxis
+            dataKey="time"
+            tick={{ fill: chartTheme.axis }}
+            axisLine={false}
+            tickLine={false}
+            minTickGap={24}
+            interval="preserveStartEnd"
+          />
+          <YAxis
+            tick={{ fill: chartTheme.axis }}
+            axisLine={false}
+            tickLine={false}
+            tickFormatter={(value) => new Intl.NumberFormat(undefined, { notation: "compact" }).format(value)}
+          />
           <Tooltip content={<ChartTooltip />} />
+          <Legend
+            verticalAlign="top"
+            height={32}
+            iconType="circle"
+            formatter={(value) => <span className="text-xs text-ink-secondary">{value}</span>}
+          />
           {data.map((series, index) => (
             <Line
               key={series.keyword}
               data={series.data}
               dataKey="value"
+              name={series.keyword}
               stroke={chartTheme.series[index % chartTheme.series.length]}
               strokeWidth={2.5}
               dot={false}
