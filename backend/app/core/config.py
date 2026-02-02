@@ -18,5 +18,6 @@ class Settings(BaseSettings):
     subreddits: str = "worldnews,india,technology,artificial,business,politics,science,movies,news"
     keywords: str = "elections,ai releases,geopolitical conflicts,inflation,layoffs,climate,entertainment,launch-week"
     cors_origins: str = "http://localhost:3000"
+    backfill_trends_hours: int = 24
 
 settings = Settings()

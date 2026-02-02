@@ -22,12 +22,19 @@ _DENYLIST = {"says", "said", "new", "original", "today", "breaking"}
 _MIN_TERM_LENGTH = 4
 
 
-def _window_bounds() -> tuple[datetime, datetime, datetime, datetime]:
-    now = datetime.now(tz=timezone.utc)
-    end = now.replace(minute=0, second=0, microsecond=0)
-    start = end - timedelta(hours=WINDOW_HOURS)
+def _align_hour(value: datetime) -> datetime:
+    return value.replace(minute=0, second=0, microsecond=0)
+
+
+def _window_bounds_at(end: datetime) -> tuple[datetime, datetime, datetime, datetime]:
+    aligned_end = _align_hour(end)
+    start = aligned_end - timedelta(hours=WINDOW_HOURS)
     prev_start = start - timedelta(hours=WINDOW_HOURS)
-    return start, end, prev_start, start
+    return start, aligned_end, prev_start, start
+
+
+def _window_bounds() -> tuple[datetime, datetime, datetime, datetime]:
+    return _window_bounds_at(datetime.now(tz=timezone.utc))
 
 
 def _fetch_posts_in_window(start: str, end: str) -> list[dict]:
@@ -132,6 +139,11 @@ def _window_term_stats(start: str, end: str) -> tuple[Counter[str], dict[str, fl
 
 def detect_trends(posts: list[PostIn]) -> list[TrendSnapshotRecord]:
     start, end, prev_start, prev_end = _window_bounds()
+    return detect_trends_for_window(end)
+
+
+def detect_trends_for_window(end: datetime) -> list[TrendSnapshotRecord]:
+    start, end, prev_start, prev_end = _window_bounds_at(end)
     current_counts, current_weighted = _window_term_stats(
         start.isoformat(), end.isoformat()
     )
@@ -173,7 +185,11 @@ def detect_trends(posts: list[PostIn]) -> list[TrendSnapshotRecord]:
 
 
 def detect_emerging_topics() -> list[EmergingTopicRecord]:
-    start, end, prev_start, prev_end = _window_bounds()
+    return detect_emerging_topics_for_window(datetime.now(tz=timezone.utc))
+
+
+def detect_emerging_topics_for_window(end: datetime) -> list[EmergingTopicRecord]:
+    start, end, prev_start, prev_end = _window_bounds_at(end)
     current_posts = _fetch_posts_in_window(start.isoformat(), end.isoformat())
     prev_posts = _fetch_posts_in_window(prev_start.isoformat(), prev_end.isoformat())
 

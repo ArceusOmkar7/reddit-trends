@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import sys
+from datetime import datetime, timedelta, timezone
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from contextlib import asynccontextmanager
@@ -14,7 +15,13 @@ from app.db.database import init_db
 from app.services.ingestion import poll_reddit
 from app.services.nlp import ensure_nltk_resources
 from app.services.sentiment import backfill_post_sentiment
-from app.services.trends import fetch_posts_since, detect_trends, detect_emerging_topics
+from app.services.trends import (
+	fetch_posts_since,
+	detect_trends,
+	detect_emerging_topics,
+	detect_trends_for_window,
+	detect_emerging_topics_for_window,
+)
 from app.repositories.trends import store_trends
 from app.repositories.emerging_topics import store_emerging_topic_snapshots
 from app.services.scheduler import run_interval, set_ingestion_enabled
@@ -59,6 +66,18 @@ async def lifespan(_: FastAPI):
 		emerging_records = detect_emerging_topics()
 		if emerging_records:
 			store_emerging_topic_snapshots(emerging_records)
+
+		backfill_hours = max(settings.backfill_trends_hours, 0)
+		if backfill_hours:
+			end = datetime.now(tz=timezone.utc)
+			for offset in range(backfill_hours):
+				window_end = end - timedelta(hours=offset)
+				trend_records = detect_trends_for_window(window_end)
+				if trend_records:
+					store_trends(trend_records)
+				emerging_records = detect_emerging_topics_for_window(window_end)
+				if emerging_records:
+					store_emerging_topic_snapshots(emerging_records)
 	except Exception:
 		logging.getLogger("reddit_trends.startup").exception("Startup recompute failed")
 	set_ingestion_enabled(settings.enable_ingestion)
