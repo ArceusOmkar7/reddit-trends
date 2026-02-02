@@ -7,10 +7,10 @@ import logging
 from app.clients.reddit import RedditClient
 from app.core.config import settings
 from app.models.schemas import PostIn
-from app.repositories.posts import store_posts
+from app.repositories.posts import store_posts, update_post_sentiment
 from app.repositories.sentiment import store_sentiment
 from app.repositories.trends import store_trends
-from app.services.sentiment import aggregate_sentiment
+from app.services.sentiment import aggregate_sentiment, score_posts
 from app.services.trends import detect_trends
 
 
@@ -49,6 +49,10 @@ async def poll_reddit() -> list[PostIn]:
     inserted = 0
     if posts:
         inserted = store_posts(posts)
+
+        post_scores = score_posts(posts)
+        if post_scores:
+            update_post_sentiment(post_scores)
 
         sentiment_records = aggregate_sentiment(posts)
         if sentiment_records:

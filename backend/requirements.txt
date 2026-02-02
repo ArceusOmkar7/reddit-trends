@@ -1,4 +1,6 @@
 fastapi==0.115.2
+nltk==3.9.1
 praw==7.8.1
 pydantic-settings==2.6.1
 uvicorn[standard]==0.30.6
+vaderSentiment==3.3.2

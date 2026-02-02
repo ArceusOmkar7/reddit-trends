@@ -12,6 +12,8 @@ from app.api.router import api_router
 from app.core.config import settings
 from app.db.database import init_db
 from app.services.ingestion import poll_reddit
+from app.services.nlp import ensure_nltk_resources
+from app.services.sentiment import backfill_post_sentiment
 from app.services.scheduler import run_interval, set_ingestion_enabled
 
 @asynccontextmanager
@@ -40,6 +42,11 @@ async def lifespan(_: FastAPI):
 		stream_handler.setFormatter(logging.Formatter(log_format))
 		root_logger.addHandler(stream_handler)
 	init_db()
+	ensure_nltk_resources()
+	while True:
+		updated = backfill_post_sentiment()
+		if updated == 0:
+			break
 	set_ingestion_enabled(settings.enable_ingestion)
 
 	async def task() -> None:

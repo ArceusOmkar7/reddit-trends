@@ -148,7 +148,7 @@ def fetch_event_sentiment(event_keyword: str, hours: int = 24) -> list[dict]:
     event_name = event_keyword.lower()
     cursor.execute(
         """
-        SELECT DISTINCT p.id, p.timestamp, p.title, p.body
+        SELECT DISTINCT p.id, p.timestamp, p.title, p.body, p.sentiment_compound
         FROM events e
         JOIN event_keywords ek ON ek.event_id = e.id
         JOIN post_keywords pk ON pk.keyword_id = ek.keyword_id
@@ -164,7 +164,10 @@ def fetch_event_sentiment(event_keyword: str, hours: int = 24) -> list[dict]:
     buckets: dict[str, list[float]] = {}
     for row in rows:
         bucket = row["timestamp"][11:16]
-        score = score_text(f"{row['title'] or ''} {row['body'] or ''}")
+        if row["sentiment_compound"] is None:
+            score = score_text(f"{row['title'] or ''} {row['body'] or ''}")
+        else:
+            score = float(row["sentiment_compound"])
         buckets.setdefault(bucket, []).append(score)
 
     return [

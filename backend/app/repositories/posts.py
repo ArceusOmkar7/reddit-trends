@@ -53,3 +53,31 @@ def store_posts(posts: Iterable[PostIn]) -> int:
     connection.close()
     logger.info("Stored posts | received=%s inserted=%s", len(enriched), inserted)
     return inserted
+
+
+def update_post_sentiment(
+    scores: Iterable[tuple[str, float, float, float, float]]
+) -> int:
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.executemany(
+        """
+        UPDATE posts
+        SET sentiment_compound = ?,
+            sentiment_pos = ?,
+            sentiment_neg = ?,
+            sentiment_neu = ?
+        WHERE id = ?
+        """,
+        [
+            (compound, pos, neg, neu, post_id)
+            for post_id, compound, pos, neg, neu in scores
+        ],
+    )
+
+    connection.commit()
+    updated = cursor.rowcount
+    connection.close()
+    logger.info("Updated post sentiment | records=%s", updated)
+    return updated

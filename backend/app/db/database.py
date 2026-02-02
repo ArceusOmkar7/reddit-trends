@@ -151,6 +151,10 @@ def init_db() -> None:
             cursor.execute(f"ALTER TABLE {table} ADD COLUMN {definition};")
 
     ensure_column("posts", "subreddit_id", "subreddit_id INTEGER")
+    ensure_column("posts", "sentiment_compound", "sentiment_compound REAL")
+    ensure_column("posts", "sentiment_pos", "sentiment_pos REAL")
+    ensure_column("posts", "sentiment_neg", "sentiment_neg REAL")
+    ensure_column("posts", "sentiment_neu", "sentiment_neu REAL")
     ensure_column("comments", "subreddit_id", "subreddit_id INTEGER")
     ensure_column("sentiment_series", "subreddit_id", "subreddit_id INTEGER")
     ensure_column("sentiment_series", "event_id", "event_id INTEGER")
