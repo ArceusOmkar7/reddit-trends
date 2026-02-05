@@ -187,11 +187,34 @@ def fetch_trending_topics(hours: int = 24, limit: int = 5) -> list[dict]:
     since = _since(hours)
     cursor.execute(
         """
-        SELECT k.phrase AS keyword, ts.velocity, ts.spike
-        FROM trend_snapshots ts
-        JOIN keywords k ON k.id = ts.keyword_id
-        WHERE ts.timestamp >= ?
-        ORDER BY ts.spike DESC
+                WITH latest AS (
+                        SELECT keyword_id, MAX(window_end) AS latest_end
+                        FROM trend_snapshots
+                        WHERE COALESCE(window_end, timestamp) >= ?
+                            AND window_start IS NOT NULL
+                            AND window_end IS NOT NULL
+                            AND substr(window_start, 15, 2) = '00'
+                            AND substr(window_start, 18, 2) = '00'
+                            AND substr(window_end, 15, 2) = '00'
+                            AND substr(window_end, 18, 2) = '00'
+                        GROUP BY keyword_id
+                )
+                SELECT k.phrase AS keyword,
+                             ts.velocity,
+                             ts.spike,
+                             ts.raw_mentions,
+                             ts.weighted_mentions,
+                             ts.previous_mentions
+                FROM trend_snapshots ts
+                JOIN latest l ON l.keyword_id = ts.keyword_id AND l.latest_end = ts.window_end
+                JOIN keywords k ON k.id = ts.keyword_id
+                WHERE ts.raw_mentions IS NOT NULL
+                    AND (
+                        ts.raw_mentions >= 5
+                        OR ts.weighted_mentions >= 5
+                        OR ts.velocity >= 0.5
+                    )
+                ORDER BY ts.spike DESC
         LIMIT ?
         """,
         (since, limit),
@@ -203,6 +226,9 @@ def fetch_trending_topics(hours: int = 24, limit: int = 5) -> list[dict]:
             "keyword": row["keyword"],
             "velocity": float(row["velocity"]),
             "spike": float(row["spike"]),
+            "raw_mentions": row["raw_mentions"],
+            "weighted_mentions": row["weighted_mentions"],
+            "previous_mentions": row["previous_mentions"],
         }
         for row in rows
     ]

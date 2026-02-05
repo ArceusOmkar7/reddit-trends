@@ -134,7 +134,11 @@ def get_dashboard(hours: int = Query(24, ge=1, le=168)) -> DashboardSummary:
     formatted_topics = [
         {
             "keyword": item["keyword"],
-            "velocity": f"{item['velocity'] * 100:+.0f}%",
+            "velocity": (
+                "New"
+                if not item.get("previous_mentions")
+                else f"{((item['raw_mentions'] - item['previous_mentions']) / max(item['previous_mentions'], 1)) * 100:+.0f}%"
+            ),
             "context": topic_contexts.get(item["keyword"], ""),
             "spike": f"Spike x{item['spike']:.1f}",
         }
