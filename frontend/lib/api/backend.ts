@@ -86,16 +86,14 @@ export async function fetchTrendData(window = "24h"): Promise<TrendData> {
 
   const grouped = new Map<string, TimeSeriesPoint[]>();
   data.forEach((item) => {
+    if (!Number.isFinite(item.velocity)) {
+      return;
+    }
     const series = grouped.get(item.keyword) ?? [];
     const timeLabel = item.window_end ?? item.timestamp;
     series.push({ time: timeLabel, value: item.velocity * 100 });
     grouped.set(item.keyword, series);
   });
-
-  const keywordSeries = Array.from(grouped.entries()).map(([keyword, series]) => ({
-    keyword,
-    data: series.sort((a, b) => a.time.localeCompare(b.time))
-  }));
 
   const latestByKeyword = new Map<string, BackendTrendItem>();
   data.forEach((item) => {
@@ -104,6 +102,18 @@ export async function fetchTrendData(window = "24h"): Promise<TrendData> {
       latestByKeyword.set(item.keyword, item);
     }
   });
+
+  const topSeriesKeys = Array.from(latestByKeyword.values())
+    .sort((a, b) => (b.spike - a.spike) || (b.velocity - a.velocity))
+    .slice(0, 8)
+    .map((item) => item.keyword);
+
+  const keywordSeries = Array.from(grouped.entries())
+    .filter(([keyword]) => topSeriesKeys.includes(keyword))
+    .map(([keyword, series]) => ({
+      keyword,
+      data: series.sort((a, b) => a.time.localeCompare(b.time))
+    }));
 
   const trendCards: TrendTopic[] = Array.from(latestByKeyword.values())
     .sort((a, b) => (b.spike - a.spike) || (b.velocity - a.velocity))

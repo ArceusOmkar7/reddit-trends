@@ -52,7 +52,9 @@ export default function KeywordLineChart({
       const existing = merged.get(point.time) ?? { time: point.time };
       existing[series.keyword] = point.value;
       merged.set(point.time, existing);
-      values.push(point.value);
+      if (Number.isFinite(point.value)) {
+        values.push(point.value);
+      }
     });
   });
 
@@ -87,12 +89,14 @@ export default function KeywordLineChart({
             domain={[min - pad, max + pad]}
           />
           <Tooltip content={<ChartTooltip />} />
-          <Legend
-            verticalAlign="top"
-            height={32}
-            iconType="circle"
-            formatter={(value) => <span className="text-xs text-ink-secondary">{value}</span>}
-          />
+          {data.length <= 8 && (
+            <Legend
+              verticalAlign="top"
+              height={32}
+              iconType="circle"
+              formatter={(value) => <span className="text-xs text-ink-secondary">{value}</span>}
+            />
+          )}
           {data.map((series, index) => (
             <Line
               key={series.keyword}
@@ -100,7 +104,9 @@ export default function KeywordLineChart({
               name={series.keyword}
               stroke={chartTheme.series[index % chartTheme.series.length]}
               strokeWidth={2.5}
-              dot={false}
+              dot={series.data.length < 2 ? { r: 3 } : false}
+              activeDot={{ r: 4 }}
+              connectNulls
               type="monotone"
             />
           ))}
